@@ -1,40 +1,40 @@
 
-import { LoginForm } from "@/components/LoginForm";
+import { SignupForm } from "@/components/SignupForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
-const Login = () => {
+const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Welcome back
+            Join us today
           </h1>
           <p className="text-muted-foreground">
-            Sign in to your account to continue
+            Create your account to get started
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Signup Card */}
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign in</CardTitle>
+            <CardTitle className="text-2xl text-center">Sign up</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password below
+              Enter your details below to create your account
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <LoginForm />
+            <SignupForm />
           </CardContent>
         </Card>
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-primary hover:underline transition-colors">
-            Sign up
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary hover:underline transition-colors">
+            Sign in
           </Link>
         </div>
       </div>
@@ -42,4 +42,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

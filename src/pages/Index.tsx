@@ -21,10 +21,12 @@ const Index = () => {
                   Sign In
                 </Button>
               </Link>
-              <Button size="sm" className="gap-2">
-                <User className="w-4 h-4" />
-                Sign Up
-              </Button>
+              <Link to="/signup">
+                <Button size="sm" className="gap-2">
+                  <User className="w-4 h-4" />
+                  Sign Up
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -75,9 +77,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  Coming Soon
-                </Button>
+                <Link to="/signup">
+                  <Button className="w-full">
+                    Try Signup Page
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -111,10 +115,12 @@ const Index = () => {
                   Sign In Now
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="gap-2">
-                <User className="w-4 h-4" />
-                Create Account
-              </Button>
+              <Link to="/signup">
+                <Button variant="outline" size="lg" className="gap-2">
+                  <User className="w-4 h-4" />
+                  Create Account
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
