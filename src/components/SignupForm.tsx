@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +18,7 @@ export const SignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -43,10 +44,16 @@ export const SignupForm = () => {
       
       toast({
         title: "Account created successfully!",
-        description: `Welcome to our platform, ${formData.name}`,
+        description: `Welcome to our platform, ${formData.name}. Please sign in to continue.`,
       });
       
       console.log("Signup attempt:", formData);
+      
+      // Navigate to login page after successful signup
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+      
     } catch (error) {
       toast({
         title: "Signup failed",
