@@ -1,6 +1,11 @@
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { LogIn, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -12,7 +17,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-foreground">Your App</h1>
+              <h1 className="text-xl font-bold text-foreground">T-rek</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/login">
@@ -38,10 +43,10 @@ const Index = () => {
           {/* Hero Section */}
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Welcome to Your App
+              Welcome to T-rek
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start building your amazing project here! This is your blank canvas ready to be transformed into something incredible.
+              start a new experience we introduce T-rek for your convinence.
             </p>
           </div>
 
@@ -59,9 +64,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <Link to="/login">
-                  <Button className="w-full">
-                    Try Login Page
-                  </Button>
+                  <Button className="w-full">Try Login Page</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -78,9 +81,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <Link to="/signup">
-                  <Button className="w-full">
-                    Try Signup Page
-                  </Button>
+                  <Button className="w-full">Try Signup Page</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -105,9 +106,7 @@ const Index = () => {
 
           {/* Call to Action */}
           <div className="mt-12 space-y-4">
-            <p className="text-muted-foreground">
-              Ready to get started?
-            </p>
+            <p className="text-muted-foreground">Ready to get started?</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/login">
                 <Button size="lg" className="gap-2">

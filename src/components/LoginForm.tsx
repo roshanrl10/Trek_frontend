@@ -1,11 +1,12 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { SignupForm } from "./SignupForm";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -13,21 +14,22 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       toast({
         title: "Login successful!",
-        description: `Welcome back, ${email}`,
+        description: `Welcome to T-rek, ${email}`,
       });
-      
-      console.log("Login attempt:", { email, password });
+
+      localStorage.setItem("user", email); // ✅ save fake login session
+      navigate("/dashboard"); // ✅ redirect to dashboard
     } catch (error) {
       toast({
         title: "Login failed",
@@ -42,11 +44,8 @@ export const LoginForm = () => {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Email Field */}
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium">
-            Email address
-          </Label>
+          <Label htmlFor="email">Email address</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -61,11 +60,8 @@ export const LoginForm = () => {
           </div>
         </div>
 
-        {/* Password Field */}
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-sm font-medium">
-            Password
-          </Label>
+          <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -80,29 +76,23 @@ export const LoginForm = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
             >
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
         </div>
 
-        {/* Forgot Password */}
         <div className="text-right">
           <button
             type="button"
-            className="text-sm text-primary hover:underline transition-colors"
+            className="text-sm text-primary hover:underline"
           >
             Forgot your password?
           </button>
         </div>
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          className="w-full h-12"
-          disabled={isLoading}
-        >
+        <Button type="submit" className="w-full h-12" disabled={isLoading}>
           {isLoading ? (
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -117,7 +107,6 @@ export const LoginForm = () => {
         </Button>
       </form>
 
-      {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <Separator className="w-full" />
@@ -129,32 +118,16 @@ export const LoginForm = () => {
         </div>
       </div>
 
-      {/* Social Login Buttons */}
       <div className="grid grid-cols-2 gap-4">
         <Button variant="outline" className="h-12">
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="currentColor"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="currentColor"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="currentColor"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.35 11.1H12v2.9h5.41C16.53 17 14.52 18.5 12 18.5c-3.04 0-5.5-2.46-5.5-5.5s2.46-5.5 5.5-5.5c1.38 0 2.63.51 3.6 1.35l2.12-2.12C16.32 5.27 14.27 4.5 12 4.5c-4.14 0-7.5 3.36-7.5 7.5s3.36 7.5 7.5 7.5 7.5-3.36 7.5-7.5c0-.47-.05-.92-.15-1.35z" />
           </svg>
           Google
         </Button>
         <Button variant="outline" className="h-12">
           <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            <path d="M22.675 0h-21.35C.6 0 0 .6 0 1.325v21.351C0 23.4.6 24 1.325 24H12.82v-9.294H9.692v-3.622h3.127V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.464.099 2.794.143v3.24l-1.918.001c-1.504 0-1.796.715-1.796 1.763v2.312h3.587l-.467 3.622h-3.12V24h6.116c.725 0 1.325-.6 1.325-1.324V1.325C24 .6 23.4 0 22.675 0z" />
           </svg>
           Facebook
         </Button>
