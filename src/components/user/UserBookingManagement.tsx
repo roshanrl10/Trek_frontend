@@ -1,13 +1,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { BookingForm } from "./booking/BookingForm";
+import { BookingTable } from "./booking/BookingTable";
 
 interface Booking {
   id: string;
@@ -44,32 +42,9 @@ export const UserBookingManagement = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
-  const [formData, setFormData] = useState({
-    guest: "",
-    hotel: "",
-    checkIn: "",
-    checkOut: "",
-    status: "pending",
-    amount: ""
-  });
 
-  const resetForm = () => {
-    setFormData({
-      guest: "",
-      hotel: "",
-      checkIn: "",
-      checkOut: "",
-      status: "pending",
-      amount: ""
-    });
-    setEditingBooking(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = (formData: Omit<Booking, 'id'>) => {
     if (editingBooking) {
-      // Update existing booking
       setBookings(prev => prev.map(booking => 
         booking.id === editingBooking.id 
           ? { ...booking, ...formData }
@@ -80,7 +55,6 @@ export const UserBookingManagement = () => {
         description: "Your booking has been successfully updated.",
       });
     } else {
-      // Create new booking
       const newBooking: Booking = {
         id: `BK${String(bookings.length + 1).padStart(3, '0')}`,
         ...formData
@@ -92,20 +66,11 @@ export const UserBookingManagement = () => {
       });
     }
     
-    setIsDialogOpen(false);
-    resetForm();
+    setEditingBooking(null);
   };
 
   const handleEdit = (booking: Booking) => {
     setEditingBooking(booking);
-    setFormData({
-      guest: booking.guest,
-      hotel: booking.hotel,
-      checkIn: booking.checkIn,
-      checkOut: booking.checkOut,
-      status: booking.status,
-      amount: booking.amount
-    });
     setIsDialogOpen(true);
   };
 
@@ -117,13 +82,8 @@ export const UserBookingManagement = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed": return "bg-green-100 text-green-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "cancelled": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const resetForm = () => {
+    setEditingBooking(null);
   };
 
   return (
@@ -137,121 +97,21 @@ export const UserBookingManagement = () => {
               Add Booking
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingBooking ? "Edit Booking" : "Create New Booking"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="guest">Guest Name</Label>
-                <Input
-                  id="guest"
-                  value={formData.guest}
-                  onChange={(e) => setFormData(prev => ({ ...prev, guest: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="hotel">Hotel</Label>
-                <Input
-                  id="hotel"
-                  value={formData.hotel}
-                  onChange={(e) => setFormData(prev => ({ ...prev, hotel: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="checkIn">Check-in Date</Label>
-                <Input
-                  id="checkIn"
-                  type="date"
-                  value={formData.checkIn}
-                  onChange={(e) => setFormData(prev => ({ ...prev, checkIn: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="checkOut">Check-out Date</Label>
-                <Input
-                  id="checkOut"
-                  type="date"
-                  value={formData.checkOut}
-                  onChange={(e) => setFormData(prev => ({ ...prev, checkOut: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="amount">Amount</Label>
-                <Input
-                  id="amount"
-                  value={formData.amount}
-                  onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                  placeholder="$450"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingBooking ? "Update" : "Create"} Booking
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
         </Dialog>
       </div>
       
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Guest</TableHead>
-            <TableHead>Hotel</TableHead>
-            <TableHead>Check-in</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bookings.map((booking) => (
-            <TableRow key={booking.id}>
-              <TableCell className="font-medium">{booking.id}</TableCell>
-              <TableCell>{booking.guest}</TableCell>
-              <TableCell>{booking.hotel}</TableCell>
-              <TableCell>{booking.checkIn}</TableCell>
-              <TableCell>
-                <Badge className={getStatusColor(booking.status)}>
-                  {booking.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{booking.amount}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(booking)}
-                  >
-                    <Pencil className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(booking.id)}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <BookingTable 
+        bookings={bookings}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      <BookingForm
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        editingBooking={editingBooking}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };
