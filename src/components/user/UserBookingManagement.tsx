@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,7 +19,7 @@ interface Booking {
   amount: string;
 }
 
-export const BookingManagement = () => {
+export const UserBookingManagement = () => {
   const { toast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([
     {
@@ -40,15 +39,6 @@ export const BookingManagement = () => {
       checkOut: "2024-01-25",
       status: "pending",
       amount: "$890"
-    },
-    {
-      id: "BK003",
-      guest: "Mike Johnson",
-      hotel: "Base Camp Hotel",
-      checkIn: "2024-01-22",
-      checkOut: "2024-01-24",
-      status: "confirmed",
-      amount: "$320"
     }
   ]);
 
@@ -79,6 +69,7 @@ export const BookingManagement = () => {
     e.preventDefault();
     
     if (editingBooking) {
+      // Update existing booking
       setBookings(prev => prev.map(booking => 
         booking.id === editingBooking.id 
           ? { ...booking, ...formData }
@@ -86,9 +77,10 @@ export const BookingManagement = () => {
       ));
       toast({
         title: "Booking Updated",
-        description: "The booking has been successfully updated.",
+        description: "Your booking has been successfully updated.",
       });
     } else {
+      // Create new booking
       const newBooking: Booking = {
         id: `BK${String(bookings.length + 1).padStart(3, '0')}`,
         ...formData
@@ -96,7 +88,7 @@ export const BookingManagement = () => {
       setBookings(prev => [...prev, newBooking]);
       toast({
         title: "Booking Created",
-        description: "New booking has been created successfully.",
+        description: "Your new booking has been created successfully.",
       });
     }
     
@@ -137,7 +129,7 @@ export const BookingManagement = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Recent Bookings</h3>
+        <h3 className="text-lg font-semibold">My Bookings</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={resetForm}>
@@ -189,19 +181,6 @@ export const BookingManagement = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, checkOut: e.target.value }))}
                   required
                 />
-              </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               <div>
                 <Label htmlFor="amount">Amount</Label>
