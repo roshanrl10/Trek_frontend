@@ -16,6 +16,7 @@ import { EquipmentRentalPage } from "./pages/user/EquipmentRentalPage";
 import { WeatherPage } from "./pages/user/WeatherPage";
 import { MapsPage } from "./pages/user/MapsPage";
 import { UserBookingsPage } from "./pages/user/UserBookingsPage";
+import { AgenciesPage } from "./pages/user/AgenciesPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/user-dashboard/hotels" element={<HotelBookingPage />} />
           <Route path="/user-dashboard/equipment" element={<EquipmentRentalPage />} />
+          <Route path="/user-dashboard/agencies" element={<AgenciesPage />} />
           <Route path="/user-dashboard/weather" element={<WeatherPage />} />
           <Route path="/user-dashboard/maps" element={<MapsPage />} />
           <Route path="/user-dashboard/bookings" element={<UserBookingsPage />} />

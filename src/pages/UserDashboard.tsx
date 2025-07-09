@@ -11,7 +11,8 @@ import {
   Calendar,
   Star,
   ArrowRight,
-  User
+  User,
+  Users
 } from "lucide-react";
 
 const UserDashboard = () => {
@@ -107,6 +108,27 @@ const UserDashboard = () => {
               </div>
               <Button className="w-full mt-4">
                 Browse Equipment <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Agencies & Guides */}
+          <Card className="border-border/50 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/user-dashboard/agencies")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-500" />
+                Agencies & Guides
+              </CardTitle>
+              <CardDescription>Book professional trekking agencies and guides</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">• Experienced local guides</p>
+                <p className="text-sm text-muted-foreground">• Certified trekking agencies</p>
+                <p className="text-sm text-muted-foreground">• Multiple language support</p>
+              </div>
+              <Button className="w-full mt-4">
+                Browse Agencies <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </CardContent>
           </Card>

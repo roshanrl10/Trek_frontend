@@ -22,6 +22,7 @@ interface Equipment {
   features: string[];
   available: number;
   size?: string[];
+  brand: string;
 }
 
 export const EquipmentRentalPage = () => {
@@ -35,11 +36,12 @@ export const EquipmentRentalPage = () => {
       category: "Footwear",
       price: 15,
       rating: 4.8,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&h=300",
       description: "High-quality waterproof trekking boots suitable for all terrain types.",
       features: ["Waterproof", "Breathable", "Ankle Support", "Vibram Sole"],
       available: 10,
-      size: ["7", "8", "9", "10", "11", "12"]
+      size: ["7", "8", "9", "10", "11", "12"],
+      brand: "Salomon"
     },
     {
       id: "E002",
@@ -47,10 +49,11 @@ export const EquipmentRentalPage = () => {
       category: "Sleeping",
       price: 12,
       rating: 4.6,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1520637836862-4d197d17c62a?auto=format&fit=crop&w=400&h=300",
       description: "Warm sleeping bag rated for extreme cold weather conditions.",
       features: ["Down Filled", "-20°C Rating", "Compression Sack", "Water Resistant"],
-      available: 8
+      available: 8,
+      brand: "The North Face"
     },
     {
       id: "E003",
@@ -58,10 +61,11 @@ export const EquipmentRentalPage = () => {
       category: "Bags",
       price: 18,
       rating: 4.7,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=400&h=300",
       description: "Large capacity backpack perfect for multi-day trekking adventures.",
       features: ["65L Capacity", "Rain Cover", "Multiple Pockets", "Adjustable Straps"],
-      available: 12
+      available: 12,
+      brand: "Osprey"
     },
     {
       id: "E004",
@@ -69,10 +73,11 @@ export const EquipmentRentalPage = () => {
       category: "Accessories",
       price: 8,
       rating: 4.5,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1551524164-6ca04ac833fb?auto=format&fit=crop&w=400&h=300",
       description: "Lightweight adjustable trekking poles for stability and support.",
       features: ["Adjustable Height", "Cork Grips", "Carbide Tips", "Collapsible"],
-      available: 15
+      available: 15,
+      brand: "Black Diamond"
     },
     {
       id: "E005",
@@ -80,10 +85,49 @@ export const EquipmentRentalPage = () => {
       category: "Shelter",
       price: 25,
       rating: 4.9,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=300",
       description: "Durable 2-person tent designed for harsh mountain conditions.",
       features: ["4-Season", "Vestibule", "Easy Setup", "Wind Resistant"],
-      available: 6
+      available: 6,
+      brand: "MSR"
+    },
+    {
+      id: "E006",
+      name: "Down Jacket",
+      category: "Clothing",
+      price: 20,
+      rating: 4.7,
+      image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?auto=format&fit=crop&w=400&h=300",
+      description: "Ultra-light down jacket for high altitude warmth.",
+      features: ["800 Fill Down", "Packable", "Water Resistant", "Ultra Light"],
+      available: 14,
+      size: ["S", "M", "L", "XL"],
+      brand: "Patagonia"
+    },
+    {
+      id: "E007",
+      name: "Climbing Harness",
+      category: "Safety",
+      price: 10,
+      rating: 4.6,
+      image: "https://images.unsplash.com/photo-1564024500829-3da6e50c6c70?auto=format&fit=crop&w=400&h=300",
+      description: "Professional climbing harness for technical routes.",
+      features: ["Adjustable", "Gear Loops", "Comfort Padding", "Belay Loop"],
+      available: 9,
+      size: ["S", "M", "L"],
+      brand: "Petzl"
+    },
+    {
+      id: "E008",
+      name: "Headlamp",
+      category: "Accessories",
+      price: 5,
+      rating: 4.4,
+      image: "https://images.unsplash.com/photo-1478667830055-0be76e0c8b04?auto=format&fit=crop&w=400&h=300",
+      description: "High-powered LED headlamp for early morning starts.",
+      features: ["300 Lumens", "Rechargeable", "Red Light Mode", "IPX4 Rated"],
+      available: 20,
+      brand: "Petzl"
     }
   ]);
 
@@ -92,7 +136,8 @@ export const EquipmentRentalPage = () => {
     category: "",
     minPrice: "",
     maxPrice: "",
-    minRating: ""
+    minRating: "",
+    brand: ""
   });
 
   const [rentalForm, setRentalForm] = useState({
@@ -105,13 +150,18 @@ export const EquipmentRentalPage = () => {
 
   const [isRentalOpen, setIsRentalOpen] = useState(false);
 
-  const categories = ["All", "Footwear", "Sleeping", "Bags", "Accessories", "Shelter"];
+  const categories = ["All", "Footwear", "Sleeping", "Bags", "Accessories", "Shelter", "Clothing", "Safety"];
+  const brands = ["All", "Salomon", "The North Face", "Osprey", "Black Diamond", "MSR", "Patagonia", "Petzl"];
 
   const applyFilters = () => {
     let filtered = equipment;
 
     if (filters.category && filters.category !== "All") {
       filtered = filtered.filter(item => item.category === filters.category);
+    }
+
+    if (filters.brand && filters.brand !== "All") {
+      filtered = filtered.filter(item => item.brand === filters.brand);
     }
 
     if (filters.minPrice) {
@@ -134,7 +184,8 @@ export const EquipmentRentalPage = () => {
       category: "",
       minPrice: "",
       maxPrice: "",
-      minRating: ""
+      minRating: "",
+      brand: ""
     });
     setFilteredEquipment(equipment);
   };
@@ -178,7 +229,7 @@ export const EquipmentRentalPage = () => {
             <CardDescription>Find the perfect gear for your trekking adventure</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <div>
                 <Label htmlFor="category">Category</Label>
                 <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
@@ -189,6 +240,21 @@ export const EquipmentRentalPage = () => {
                     {categories.map((category) => (
                       <SelectItem key={category} value={category === "All" ? "" : category}>
                         {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="brand">Brand</Label>
+                <Select value={filters.brand} onValueChange={(value) => setFilters({ ...filters, brand: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Brands" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand} value={brand === "All" ? "" : brand}>
+                        {brand}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -228,7 +294,7 @@ export const EquipmentRentalPage = () => {
                 </Select>
               </div>
               <div className="flex gap-2 items-end">
-                <Button onClick={applyFilters}>Apply Filters</Button>
+                <Button onClick={applyFilters}>Apply</Button>
                 <Button variant="outline" onClick={clearFilters}>Clear</Button>
               </div>
             </div>
@@ -236,10 +302,10 @@ export const EquipmentRentalPage = () => {
         </Card>
 
         {/* Equipment Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredEquipment.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <div className="aspect-video bg-muted relative">
+            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="aspect-square bg-muted relative">
                 <img 
                   src={item.image} 
                   alt={item.name}
@@ -252,30 +318,37 @@ export const EquipmentRentalPage = () => {
                   {item.category}
                 </Badge>
               </div>
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg">{item.name}</CardTitle>
-                    <div className="flex items-center text-sm text-muted-foreground mt-1">
-                      <Package className="w-3 h-3 mr-1" />
-                      {item.available} available
-                    </div>
+                    <CardTitle className="text-base font-semibold">{item.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{item.brand}</p>
                   </div>
                   <div className="flex items-center">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
                     <span className="text-sm font-medium">{item.rating}</span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
+                <div className="flex items-center text-sm text-muted-foreground mb-3">
+                  <Package className="w-3 h-3 mr-1" />
+                  {item.available} available
+                </div>
                 
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {item.features.map((feature) => (
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{item.description}</p>
+                
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {item.features.slice(0, 3).map((feature) => (
                     <Badge key={feature} variant="outline" className="text-xs">
                       {feature}
                     </Badge>
                   ))}
+                  {item.features.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{item.features.length - 3} more
+                    </Badge>
+                  )}
                 </div>
                 
                 <Button 
