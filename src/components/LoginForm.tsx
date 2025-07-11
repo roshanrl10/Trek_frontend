@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { SignupForm } from "./SignupForm";
 
-export const LoginForm = () => {
+const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,19 +21,32 @@ export const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await axios.post(
+        "http://localhost:2000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      const data = response.data;
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.data));
 
       toast({
         title: "Login successful!",
-        description: `Welcome to T-rek, ${email}`,
+        description: `Welcome back, ${data.data.username}`,
       });
 
-      localStorage.setItem("user", email); // ✅ save fake login session
-      navigate("/dashboard"); // ✅ redirect to dashboard
-    } catch (error) {
+      navigate("/dashboard"); // Redirect to dashboard
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description:
+          error.response?.data?.message ||
+          error.message ||
+          "Invalid credentials",
         variant: "destructive",
       });
     } finally {
@@ -135,3 +148,5 @@ export const LoginForm = () => {
     </div>
   );
 };
+
+export default LoginForm;

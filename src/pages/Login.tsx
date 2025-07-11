@@ -1,6 +1,11 @@
-
-import { LoginForm } from "@/components/LoginForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import LoginForm from "../components/LoginForm"; // ✅ make sure LoginForm is default export
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const Login = () => {
@@ -26,14 +31,18 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <LoginForm />
+            <LoginForm />{" "}
+            {/* ✅ Fully featured login form with state + icons */}
           </CardContent>
         </Card>
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="font-medium text-primary hover:underline transition-colors">
+          Don&apos;t have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-medium text-primary hover:underline transition-colors"
+          >
             Sign up
           </Link>
         </div>

@@ -1,6 +1,11 @@
-
-import { SignupForm } from "@/components/SignupForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import SignupForm from "@/components/SignupForm";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const Signup = () => {
@@ -10,10 +15,10 @@ const Signup = () => {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Join us today
+            Create an account
           </h1>
           <p className="text-muted-foreground">
-            Create your account to get started
+            Fill in your details to get started
           </p>
         </div>
 
@@ -22,7 +27,7 @@ const Signup = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Sign up</CardTitle>
             <CardDescription className="text-center">
-              Enter your details below to create your account
+              It’s quick and easy
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -33,7 +38,10 @@ const Signup = () => {
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-primary hover:underline transition-colors">
+          <Link
+            to="/login"
+            className="font-medium text-primary hover:underline transition-colors"
+          >
             Sign in
           </Link>
         </div>
