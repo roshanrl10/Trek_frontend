@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,110 +28,10 @@ interface Equipment {
 export const EquipmentRentalPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const userEmail = localStorage.getItem("user");
   
-  const [equipment] = useState<Equipment[]>([
-    {
-      id: "E001",
-      name: "Professional Trekking Boots",
-      category: "Footwear",
-      price: 15,
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&h=300",
-      description: "High-quality waterproof trekking boots suitable for all terrain types.",
-      features: ["Waterproof", "Breathable", "Ankle Support", "Vibram Sole"],
-      available: 10,
-      size: ["7", "8", "9", "10", "11", "12"],
-      brand: "Salomon"
-    },
-    {
-      id: "E002",
-      name: "4-Season Sleeping Bag",
-      category: "Sleeping",
-      price: 12,
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1520637836862-4d197d17c62a?auto=format&fit=crop&w=400&h=300",
-      description: "Warm sleeping bag rated for extreme cold weather conditions.",
-      features: ["Down Filled", "-20°C Rating", "Compression Sack", "Water Resistant"],
-      available: 8,
-      brand: "The North Face"
-    },
-    {
-      id: "E003",
-      name: "Expedition Backpack 65L",
-      category: "Bags",
-      price: 18,
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=400&h=300",
-      description: "Large capacity backpack perfect for multi-day trekking adventures.",
-      features: ["65L Capacity", "Rain Cover", "Multiple Pockets", "Adjustable Straps"],
-      available: 12,
-      brand: "Osprey"
-    },
-    {
-      id: "E004",
-      name: "Trekking Poles (Pair)",
-      category: "Accessories",
-      price: 8,
-      rating: 4.5,
-      image: "https://images.unsplash.com/photo-1551524164-6ca04ac833fb?auto=format&fit=crop&w=400&h=300",
-      description: "Lightweight adjustable trekking poles for stability and support.",
-      features: ["Adjustable Height", "Cork Grips", "Carbide Tips", "Collapsible"],
-      available: 15,
-      brand: "Black Diamond"
-    },
-    {
-      id: "E005",
-      name: "Mountain Tent 2-Person",
-      category: "Shelter",
-      price: 25,
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=300",
-      description: "Durable 2-person tent designed for harsh mountain conditions.",
-      features: ["4-Season", "Vestibule", "Easy Setup", "Wind Resistant"],
-      available: 6,
-      brand: "MSR"
-    },
-    {
-      id: "E006",
-      name: "Down Jacket",
-      category: "Clothing",
-      price: 20,
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?auto=format&fit=crop&w=400&h=300",
-      description: "Ultra-light down jacket for high altitude warmth.",
-      features: ["800 Fill Down", "Packable", "Water Resistant", "Ultra Light"],
-      available: 14,
-      size: ["S", "M", "L", "XL"],
-      brand: "Patagonia"
-    },
-    {
-      id: "E007",
-      name: "Climbing Harness",
-      category: "Safety",
-      price: 10,
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1564024500829-3da6e50c6c70?auto=format&fit=crop&w=400&h=300",
-      description: "Professional climbing harness for technical routes.",
-      features: ["Adjustable", "Gear Loops", "Comfort Padding", "Belay Loop"],
-      available: 9,
-      size: ["S", "M", "L"],
-      brand: "Petzl"
-    },
-    {
-      id: "E008",
-      name: "Headlamp",
-      category: "Accessories",
-      price: 5,
-      rating: 4.4,
-      image: "https://images.unsplash.com/photo-1478667830055-0be76e0c8b04?auto=format&fit=crop&w=400&h=300",
-      description: "High-powered LED headlamp for early morning starts.",
-      features: ["300 Lumens", "Rechargeable", "Red Light Mode", "IPX4 Rated"],
-      available: 20,
-      brand: "Petzl"
-    }
-  ]);
-
-  const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>(equipment);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [filters, setFilters] = useState({
     category: "",
     minPrice: "",
@@ -152,6 +52,116 @@ export const EquipmentRentalPage = () => {
 
   const categories = ["All", "Footwear", "Sleeping", "Bags", "Accessories", "Shelter", "Clothing", "Safety"];
   const brands = ["All", "Salomon", "The North Face", "Osprey", "Black Diamond", "MSR", "Patagonia", "Petzl"];
+
+  // Load equipment from localStorage (admin-added) and default equipment
+  useEffect(() => {
+    const adminEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
+    const defaultEquipment = [
+      {
+        id: "E001",
+        name: "Professional Trekking Boots",
+        category: "Footwear",
+        price: 15,
+        rating: 4.8,
+        image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&h=300",
+        description: "High-quality waterproof trekking boots suitable for all terrain types.",
+        features: ["Waterproof", "Breathable", "Ankle Support", "Vibram Sole"],
+        available: 10,
+        size: ["7", "8", "9", "10", "11", "12"],
+        brand: "Salomon"
+      },
+      {
+        id: "E002",
+        name: "4-Season Sleeping Bag",
+        category: "Sleeping",
+        price: 12,
+        rating: 4.6,
+        image: "https://images.unsplash.com/photo-1520637836862-4d197d17c62a?auto=format&fit=crop&w=400&h=300",
+        description: "Warm sleeping bag rated for extreme cold weather conditions.",
+        features: ["Down Filled", "-20°C Rating", "Compression Sack", "Water Resistant"],
+        available: 8,
+        brand: "The North Face"
+      },
+      {
+        id: "E003",
+        name: "Expedition Backpack 65L",
+        category: "Bags",
+        price: 18,
+        rating: 4.7,
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=400&h=300",
+        description: "Large capacity backpack perfect for multi-day trekking adventures.",
+        features: ["65L Capacity", "Rain Cover", "Multiple Pockets", "Adjustable Straps"],
+        available: 12,
+        brand: "Osprey"
+      },
+      {
+        id: "E004",
+        name: "Trekking Poles (Pair)",
+        category: "Accessories",
+        price: 8,
+        rating: 4.5,
+        image: "https://images.unsplash.com/photo-1551524164-6ca04ac833fb?auto=format&fit=crop&w=400&h=300",
+        description: "Lightweight adjustable trekking poles for stability and support.",
+        features: ["Adjustable Height", "Cork Grips", "Carbide Tips", "Collapsible"],
+        available: 15,
+        brand: "Black Diamond"
+      },
+      {
+        id: "E005",
+        name: "Mountain Tent 2-Person",
+        category: "Shelter",
+        price: 25,
+        rating: 4.9,
+        image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=300",
+        description: "Durable 2-person tent designed for harsh mountain conditions.",
+        features: ["4-Season", "Vestibule", "Easy Setup", "Wind Resistant"],
+        available: 6,
+        brand: "MSR"
+      },
+      {
+        id: "E006",
+        name: "Down Jacket",
+        category: "Clothing",
+        price: 20,
+        rating: 4.7,
+        image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?auto=format&fit=crop&w=400&h=300",
+        description: "Ultra-light down jacket for high altitude warmth.",
+        features: ["800 Fill Down", "Packable", "Water Resistant", "Ultra Light"],
+        available: 14,
+        size: ["S", "M", "L", "XL"],
+        brand: "Patagonia"
+      },
+      {
+        id: "E007",
+        name: "Climbing Harness",
+        category: "Safety",
+        price: 10,
+        rating: 4.6,
+        image: "https://images.unsplash.com/photo-1564024500829-3da6e50c6c70?auto=format&fit=crop&w=400&h=300",
+        description: "Professional climbing harness for technical routes.",
+        features: ["Adjustable", "Gear Loops", "Comfort Padding", "Belay Loop"],
+        available: 9,
+        size: ["S", "M", "L"],
+        brand: "Petzl"
+      },
+      {
+        id: "E008",
+        name: "Headlamp",
+        category: "Accessories",
+        price: 5,
+        rating: 4.4,
+        image: "https://images.unsplash.com/photo-1478667830055-0be76e0c8b04?auto=format&fit=crop&w=400&h=300",
+        description: "High-powered LED headlamp for early morning starts.",
+        features: ["300 Lumens", "Rechargeable", "Red Light Mode", "IPX4 Rated"],
+        available: 20,
+        brand: "Petzl"
+      }
+    ];
+
+    const allEquipment = [...defaultEquipment, ...adminEquipment];
+    setEquipment(allEquipment);
+    setFilteredEquipment(allEquipment);
+  }, []);
 
   const applyFilters = () => {
     let filtered = equipment;
@@ -197,6 +207,27 @@ export const EquipmentRentalPage = () => {
 
   const submitRental = () => {
     const item = equipment.find(e => e.id === rentalForm.equipmentId);
+    
+    // Save rental to localStorage
+    const existingBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const newRental = {
+      id: `R${Date.now()}`,
+      type: "equipment",
+      userEmail: userEmail,
+      equipmentId: rentalForm.equipmentId,
+      equipmentName: item?.name,
+      startDate: rentalForm.startDate,
+      endDate: rentalForm.endDate,
+      quantity: rentalForm.quantity,
+      size: rentalForm.size,
+      dailyPrice: item?.price,
+      status: "confirmed",
+      bookingDate: new Date().toISOString().split('T')[0]
+    };
+    
+    const updatedBookings = [...existingBookings, newRental];
+    localStorage.setItem("userBookings", JSON.stringify(updatedBookings));
+
     toast({
       title: "Rental Confirmed",
       description: `Your rental of ${item?.name} has been confirmed from ${rentalForm.startDate} to ${rentalForm.endDate}`,

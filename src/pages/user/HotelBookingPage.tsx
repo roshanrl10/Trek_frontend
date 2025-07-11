@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,54 +28,8 @@ export const HotelBookingPage = () => {
   const { toast } = useToast();
   const userEmail = localStorage.getItem("user");
   
-  const [hotels] = useState<Hotel[]>([
-    {
-      id: "H001",
-      name: "Mountain View Lodge",
-      location: "Everest Base Camp",
-      price: 150,
-      rating: 4.5,
-      image: "/placeholder.svg",
-      amenities: ["WiFi", "Parking", "Restaurant", "Gym"],
-      description: "Luxury lodge with stunning mountain views and excellent facilities for trekkers.",
-      available: true
-    },
-    {
-      id: "H002",
-      name: "Himalayan Resort",
-      location: "Annapurna",
-      price: 120,
-      rating: 4.2,
-      image: "/placeholder.svg",
-      amenities: ["WiFi", "Restaurant", "Spa"],
-      description: "Comfortable resort perfect for relaxation after long trekking days.",
-      available: true
-    },
-    {
-      id: "H003",
-      name: "Sherpa Inn",
-      location: "Langtang Valley",
-      price: 80,
-      rating: 4.0,
-      image: "/placeholder.svg",
-      amenities: ["WiFi", "Restaurant"],
-      description: "Cozy inn run by local Sherpa family with authentic mountain hospitality.",
-      available: true
-    },
-    {
-      id: "H004",
-      name: "Alpine Retreat",
-      location: "Everest Base Camp",
-      price: 200,
-      rating: 4.8,
-      image: "/placeholder.svg",
-      amenities: ["WiFi", "Parking", "Restaurant", "Gym", "Spa"],
-      description: "Premium alpine retreat with world-class amenities and service.",
-      available: true
-    }
-  ]);
-
-  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>(hotels);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [filters, setFilters] = useState({
     location: "",
     minPrice: "",
@@ -91,6 +45,61 @@ export const HotelBookingPage = () => {
   });
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  // Load hotels from localStorage (admin-added) and default hotels
+  useEffect(() => {
+    const adminHotels = JSON.parse(localStorage.getItem("adminHotels") || "[]");
+    const defaultHotels = [
+      {
+        id: "H001",
+        name: "Mountain View Lodge",
+        location: "Everest Base Camp",
+        price: 150,
+        rating: 4.5,
+        image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=400&h=300",
+        amenities: ["WiFi", "Parking", "Restaurant", "Gym"],
+        description: "Luxury lodge with stunning mountain views and excellent facilities for trekkers.",
+        available: true
+      },
+      {
+        id: "H002",
+        name: "Himalayan Resort",
+        location: "Annapurna",
+        price: 120,
+        rating: 4.2,
+        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=400&h=300",
+        amenities: ["WiFi", "Restaurant", "Spa"],
+        description: "Comfortable resort perfect for relaxation after long trekking days.",
+        available: true
+      },
+      {
+        id: "H003",
+        name: "Sherpa Inn",
+        location: "Langtang Valley",
+        price: 80,
+        rating: 4.0,
+        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&h=300",
+        amenities: ["WiFi", "Restaurant"],
+        description: "Cozy inn run by local Sherpa family with authentic mountain hospitality.",
+        available: true
+      },
+      {
+        id: "H004",
+        name: "Alpine Retreat",
+        location: "Everest Base Camp",
+        price: 200,
+        rating: 4.8,
+        image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=400&h=300",
+        amenities: ["WiFi", "Parking", "Restaurant", "Gym", "Spa"],
+        description: "Premium alpine retreat with world-class amenities and service.",
+        available: true
+      }
+    ];
+
+    const allHotels = [...defaultHotels, ...adminHotels];
+    setHotels(allHotels);
+    setFilteredHotels(allHotels);
+  }, []);
 
   const applyFilters = () => {
     let filtered = hotels;
@@ -133,6 +142,26 @@ export const HotelBookingPage = () => {
 
   const submitBooking = () => {
     const hotel = hotels.find(h => h.id === bookingForm.hotelId);
+    
+    // Save booking to localStorage
+    const existingBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const newBooking = {
+      id: `B${Date.now()}`,
+      type: "hotel",
+      userEmail: userEmail,
+      hotelId: bookingForm.hotelId,
+      hotelName: hotel?.name,
+      checkIn: bookingForm.checkIn,
+      checkOut: bookingForm.checkOut,
+      guests: bookingForm.guests,
+      totalPrice: hotel?.price,
+      status: "confirmed",
+      bookingDate: new Date().toISOString().split('T')[0]
+    };
+    
+    const updatedBookings = [...existingBookings, newBooking];
+    localStorage.setItem("userBookings", JSON.stringify(updatedBookings));
+
     toast({
       title: "Booking Confirmed",
       description: `Your booking at ${hotel?.name} has been confirmed for ${bookingForm.checkIn} to ${bookingForm.checkOut}`,

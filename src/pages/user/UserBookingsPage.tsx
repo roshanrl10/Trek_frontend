@@ -1,139 +1,65 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Hotel, Package, Users, Calendar } from "lucide-react";
+import { ArrowLeft, Hotel, Package, Calendar, MapPin, User } from "lucide-react";
 
 interface Booking {
   id: string;
-  type: 'hotel' | 'equipment' | 'guide';
-  item: string;
-  date: string;
+  type: "hotel" | "equipment";
+  userEmail: string;
+  hotelId?: string;
+  hotelName?: string;
+  equipmentId?: string;
+  equipmentName?: string;
+  checkIn?: string;
+  checkOut?: string;
+  startDate?: string;
+  endDate?: string;
+  guests?: number;
+  quantity?: number;
+  size?: string;
+  totalPrice?: number;
+  dailyPrice?: number;
   status: string;
-  amount: string;
-  details: string;
+  bookingDate: string;
 }
 
 export const UserBookingsPage = () => {
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("user");
-  
-  // Filter bookings by current user
-  const [userBookings] = useState<Booking[]>([
-    {
-      id: "BK001",
-      type: "hotel",
-      item: "Mountain View Lodge",
-      date: "2024-01-15",
-      status: "confirmed",
-      amount: "$450",
-      details: "3 nights, 2 guests"
-    },
-    {
-      id: "RT001",
-      type: "equipment",
-      item: "Trekking Boots",
-      date: "2024-01-15",
-      status: "active",
-      amount: "$45",
-      details: "7 days rental"
-    },
-    {
-      id: "GD001",
-      type: "guide",
-      item: "Mountain Guide - Raj",
-      date: "2024-01-20",
-      status: "pending",
-      amount: "$300",
-      details: "5 days guided trek"
-    },
-    {
-      id: "BK002",
-      type: "hotel",
-      item: "Himalayan Resort",
-      date: "2024-02-01",
-      status: "pending",
-      amount: "$600",
-      details: "5 nights, 2 guests"
-    },
-    {
-      id: "RT002",
-      type: "equipment",
-      item: "Sleeping Bag",
-      date: "2024-01-28",
-      status: "returned",
-      amount: "$60",
-      details: "10 days rental"
-    }
-  ]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
+  useEffect(() => {
+    // Load user's bookings from localStorage
+    const allBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const userBookings = allBookings.filter((booking: Booking) => booking.userEmail === userEmail);
+    setBookings(userBookings);
+  }, [userEmail]);
+
+  const hotelBookings = bookings.filter(booking => booking.type === "hotel");
+  const equipmentBookings = bookings.filter(booking => booking.type === "equipment");
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed": return "bg-green-100 text-green-800";
-      case "active": return "bg-blue-100 text-blue-800";
       case "pending": return "bg-yellow-100 text-yellow-800";
-      case "returned": return "bg-gray-100 text-gray-800";
       case "cancelled": return "bg-red-100 text-red-800";
+      case "completed": return "bg-blue-100 text-blue-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "hotel": return <Hotel className="w-4 h-4" />;
-      case "equipment": return <Package className="w-4 h-4" />;
-      case "guide": return <Users className="w-4 h-4" />;
-      default: return <Calendar className="w-4 h-4" />;
-    }
+  const calculateDays = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
-
-  const hotelBookings = userBookings.filter(b => b.type === 'hotel');
-  const equipmentBookings = userBookings.filter(b => b.type === 'equipment');
-  const guideBookings = userBookings.filter(b => b.type === 'guide');
-
-  const totalSpent = userBookings.reduce((sum, booking) => {
-    return sum + parseInt(booking.amount.replace('$', ''));
-  }, 0);
-
-  const renderBookingTable = (bookings: Booking[]) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Item/Service</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Details</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {bookings.map((booking) => (
-          <TableRow key={booking.id}>
-            <TableCell className="font-medium">{booking.id}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                {getTypeIcon(booking.type)}
-                {booking.item}
-              </div>
-            </TableCell>
-            <TableCell>{booking.date}</TableCell>
-            <TableCell className="text-muted-foreground">{booking.details}</TableCell>
-            <TableCell>
-              <Badge className={getStatusColor(booking.status)}>
-                {booking.status}
-              </Badge>
-            </TableCell>
-            <TableCell className="font-medium">{booking.amount}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
@@ -150,97 +76,204 @@ export const UserBookingsPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userBookings.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Hotel Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{hotelBookings.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Equipment Rentals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{equipmentBookings.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalSpent}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* User Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-            <CardDescription>Logged in as: {userEmail}</CardDescription>
-          </CardHeader>
-        </Card>
-
-        {/* Bookings Tabs */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Booking History</CardTitle>
-            <CardDescription>View all your bookings and their current status</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Your Bookings
+            </CardTitle>
+            <CardDescription>
+              View and manage all your hotel bookings and equipment rentals
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="all" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="all">All Bookings</TabsTrigger>
-                <TabsTrigger value="hotels">Hotels</TabsTrigger>
-                <TabsTrigger value="equipment">Equipment</TabsTrigger>
-                <TabsTrigger value="guides">Guides</TabsTrigger>
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="all">All Bookings ({bookings.length})</TabsTrigger>
+                <TabsTrigger value="hotels">Hotels ({hotelBookings.length})</TabsTrigger>
+                <TabsTrigger value="equipment">Equipment ({equipmentBookings.length})</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all" className="space-y-4">
-                {renderBookingTable(userBookings)}
+              <TabsContent value="all">
+                <div className="grid gap-4">
+                  {bookings.length === 0 ? (
+                    <Card>
+                      <CardContent className="text-center py-8">
+                        <p className="text-muted-foreground">You haven't made any bookings yet.</p>
+                        <div className="flex gap-2 justify-center mt-4">
+                          <Button onClick={() => navigate("/user-dashboard/hotels")}>
+                            Book Hotels
+                          </Button>
+                          <Button variant="outline" onClick={() => navigate("/user-dashboard/equipment")}>
+                            Rent Equipment
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    bookings.map((booking) => (
+                      <Card key={booking.id}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                {booking.type === "hotel" ? (
+                                  <Hotel className="w-4 h-4 text-blue-500" />
+                                ) : (
+                                  <Package className="w-4 h-4 text-green-500" />
+                                )}
+                                <h3 className="font-semibold">
+                                  {booking.type === "hotel" ? booking.hotelName : booking.equipmentName}
+                                </h3>
+                                <Badge className={getStatusColor(booking.status)}>
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Booked: {booking.bookingDate}</span>
+                                </div>
+                                
+                                {booking.type === "hotel" ? (
+                                  <>
+                                    <div>Check-in: {booking.checkIn}</div>
+                                    <div>Check-out: {booking.checkOut}</div>
+                                    <div>Guests: {booking.guests}</div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div>Start: {booking.startDate}</div>
+                                    <div>End: {booking.endDate}</div>
+                                    <div>Quantity: {booking.quantity}{booking.size && ` (Size: ${booking.size})`}</div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="text-right">
+                              <div className="font-semibold">
+                                {booking.type === "hotel" ? (
+                                  `$${booking.totalPrice}`
+                                ) : (
+                                  `$${booking.dailyPrice}/day`
+                                )}
+                              </div>
+                              {booking.type === "equipment" && booking.startDate && booking.endDate && (
+                                <div className="text-sm text-muted-foreground">
+                                  Total: ${(booking.dailyPrice || 0) * calculateDays(booking.startDate, booking.endDate)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
               </TabsContent>
 
-              <TabsContent value="hotels" className="space-y-4">
-                {hotelBookings.length > 0 ? (
-                  renderBookingTable(hotelBookings)
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No hotel bookings found.
-                  </div>
-                )}
+              <TabsContent value="hotels">
+                <div className="grid gap-4">
+                  {hotelBookings.length === 0 ? (
+                    <Card>
+                      <CardContent className="text-center py-8">
+                        <Hotel className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No hotel bookings found.</p>
+                        <Button onClick={() => navigate("/user-dashboard/hotels")} className="mt-4">
+                          Book Hotels
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    hotelBookings.map((booking) => (
+                      <Card key={booking.id}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Hotel className="w-4 h-4 text-blue-500" />
+                                <h3 className="font-semibold">{booking.hotelName}</h3>
+                                <Badge className={getStatusColor(booking.status)}>
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Booked: {booking.bookingDate}</span>
+                                </div>
+                                <div>Check-in: {booking.checkIn}</div>
+                                <div>Check-out: {booking.checkOut}</div>
+                                <div>Guests: {booking.guests}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="text-right">
+                              <div className="font-semibold">${booking.totalPrice}</div>
+                              <div className="text-sm text-muted-foreground">per night</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
               </TabsContent>
 
-              <TabsContent value="equipment" className="space-y-4">
-                {equipmentBookings.length > 0 ? (
-                  renderBookingTable(equipmentBookings)
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No equipment rentals found.
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="guides" className="space-y-4">
-                {guideBookings.length > 0 ? (
-                  renderBookingTable(guideBookings)
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No guide bookings found.
-                  </div>
-                )}
+              <TabsContent value="equipment">
+                <div className="grid gap-4">
+                  {equipmentBookings.length === 0 ? (
+                    <Card>
+                      <CardContent className="text-center py-8">
+                        <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No equipment rentals found.</p>
+                        <Button onClick={() => navigate("/user-dashboard/equipment")} className="mt-4">
+                          Rent Equipment
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    equipmentBookings.map((booking) => (
+                      <Card key={booking.id}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Package className="w-4 h-4 text-green-500" />
+                                <h3 className="font-semibold">{booking.equipmentName}</h3>
+                                <Badge className={getStatusColor(booking.status)}>
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Booked: {booking.bookingDate}</span>
+                                </div>
+                                <div>Start: {booking.startDate}</div>
+                                <div>End: {booking.endDate}</div>
+                                <div>Qty: {booking.quantity}{booking.size && ` (Size: ${booking.size})`}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="text-right">
+                              <div className="font-semibold">${booking.dailyPrice}/day</div>
+                              {booking.startDate && booking.endDate && (
+                                <div className="text-sm text-muted-foreground">
+                                  Total: ${(booking.dailyPrice || 0) * calculateDays(booking.startDate, booking.endDate)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
