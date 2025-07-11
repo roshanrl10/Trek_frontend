@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -18,40 +18,52 @@ interface Booking {
   checkOut: string;
   status: string;
   amount: string;
+  type?: string;
 }
 
 export const BookingManagement = () => {
   const { toast } = useToast();
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: "BK001",
-      guest: "John Doe",
-      hotel: "Mountain View Lodge",
-      checkIn: "2024-01-15",
-      checkOut: "2024-01-18",
-      status: "confirmed",
-      amount: "$450"
-    },
-    {
-      id: "BK002",
-      guest: "Jane Smith",
-      hotel: "Himalayan Resort",
-      checkIn: "2024-01-20",
-      checkOut: "2024-01-25",
-      status: "pending",
-      amount: "$890"
-    },
-    {
-      id: "BK003",
-      guest: "Mike Johnson",
-      hotel: "Base Camp Hotel",
-      checkIn: "2024-01-22",
-      checkOut: "2024-01-24",
-      status: "confirmed",
-      amount: "$320"
-    }
-  ]);
+  
+  // Get all bookings from localStorage and default bookings
+  const getAllBookings = () => {
+    const userBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const defaultBookings = [
+      {
+        id: "BK001",
+        guest: "John Doe",
+        hotel: "Mountain View Lodge",
+        checkIn: "2024-01-15",
+        checkOut: "2024-01-18",
+        status: "confirmed",
+        amount: "$450",
+        type: "hotel"
+      },
+      {
+        id: "BK002",
+        guest: "Jane Smith",
+        hotel: "Himalayan Resort",
+        checkIn: "2024-01-20",
+        checkOut: "2024-01-25",
+        status: "pending",
+        amount: "$890",
+        type: "hotel"
+      },
+      {
+        id: "BK003",
+        guest: "Mike Johnson",
+        hotel: "Base Camp Hotel",
+        checkIn: "2024-01-22",
+        checkOut: "2024-01-24",
+        status: "confirmed",
+        amount: "$320",
+        type: "hotel"
+      }
+    ];
+    
+    return [...defaultBookings, ...userBookings];
+  };
 
+  const [bookings, setBookings] = useState<Booking[]>(getAllBookings());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [formData, setFormData] = useState({
@@ -62,6 +74,18 @@ export const BookingManagement = () => {
     status: "pending",
     amount: ""
   });
+
+  // Update bookings when user makes new bookings
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updatedBookings = getAllBookings();
+      if (updatedBookings.length !== bookings.length) {
+        setBookings(updatedBookings);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [bookings.length]);
 
   const resetForm = () => {
     setFormData({
@@ -91,7 +115,8 @@ export const BookingManagement = () => {
     } else {
       const newBooking: Booking = {
         id: `BK${String(bookings.length + 1).padStart(3, '0')}`,
-        ...formData
+        ...formData,
+        type: "hotel"
       };
       setBookings(prev => [...prev, newBooking]);
       toast({
@@ -134,10 +159,18 @@ export const BookingManagement = () => {
     }
   };
 
+  const getTypeColor = (type?: string) => {
+    switch (type) {
+      case "hotel": return "bg-blue-100 text-blue-800";
+      case "trekking": return "bg-green-100 text-green-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Recent Bookings</h3>
+        <h3 className="text-lg font-semibold">All Bookings ({bookings.length})</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={resetForm}>
@@ -162,7 +195,7 @@ export const BookingManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="hotel">Hotel</Label>
+                <Label htmlFor="hotel">Hotel/Service</Label>
                 <Input
                   id="hotel"
                   value={formData.hotel}
@@ -231,9 +264,10 @@ export const BookingManagement = () => {
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>Guest</TableHead>
-            <TableHead>Hotel</TableHead>
+            <TableHead>Service</TableHead>
             <TableHead>Check-in</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -248,6 +282,11 @@ export const BookingManagement = () => {
               <TableCell>
                 <Badge className={getStatusColor(booking.status)}>
                   {booking.status}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge className={getTypeColor(booking.type)}>
+                  {booking.type || 'hotel'}
                 </Badge>
               </TableCell>
               <TableCell>{booking.amount}</TableCell>

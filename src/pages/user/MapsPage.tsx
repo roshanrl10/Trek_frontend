@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ interface TrekkingRoute {
   coordinates: [number, number];
   waypoints: { name: string; coordinates: [number, number] }[];
   isBookmarked: boolean;
+  status?: string;
 }
 
 export const MapsPage = () => {
@@ -29,26 +29,46 @@ export const MapsPage = () => {
   const [selectedRoute, setSelectedRoute] = useState<TrekkingRoute | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   
-  const [routes] = useState<TrekkingRoute[]>([
-    {
-      id: "TR001",
-      name: "Everest Base Camp Trek",
-      difficulty: "Hard",
-      duration: "14 days",
-      distance: "130 km",
-      elevation: "5,364m",
-      description: "The classic trek to Everest Base Camp, offering stunning views of the world's highest peak and surrounding mountains.",
-      coordinates: [86.8523, 27.9881],
-      waypoints: [
-        { name: "Lukla", coordinates: [86.7311, 27.6869] },
-        { name: "Namche Bazaar", coordinates: [86.7131, 27.8067] },
-        { name: "Tengboche", coordinates: [86.7644, 27.8368] },
-        { name: "Dingboche", coordinates: [86.8306, 27.8925] },
-        { name: "Lobuche", coordinates: [86.8089, 27.9519] },
-        { name: "Everest Base Camp", coordinates: [86.8523, 27.9881] }
-      ],
-      isBookmarked: false
-    },
+  // Get routes from admin localStorage or use defaults
+  const getRoutesFromStorage = () => {
+    const adminRoutes = localStorage.getItem("adminRoutes");
+    if (adminRoutes) {
+      const parsedRoutes = JSON.parse(adminRoutes);
+      return parsedRoutes.map((route: any) => ({
+        ...route,
+        description: route.description || `A beautiful ${route.difficulty.toLowerCase()} trek with stunning mountain views.`,
+        coordinates: [86.8523, 27.9881] as [number, number],
+        waypoints: [
+          { name: "Start Point", coordinates: [86.7311, 27.6869] as [number, number] },
+          { name: "Midway", coordinates: [86.7644, 27.8368] as [number, number] },
+          { name: "End Point", coordinates: [86.8523, 27.9881] as [number, number] }
+        ],
+        isBookmarked: false
+      }));
+    }
+    
+    // Default routes if none exist
+    return [
+      {
+        id: "TR001",
+        name: "Everest Base Camp Trek",
+        difficulty: "Hard",
+        duration: "14 days",
+        distance: "130 km",
+        elevation: "5,364m",
+        description: "The classic trek to Everest Base Camp, offering stunning views of the world's highest peak and surrounding mountains.",
+        coordinates: [86.8523, 27.9881] as [number, number],
+        waypoints: [
+          { name: "Lukla", coordinates: [86.7311, 27.6869] as [number, number] },
+          { name: "Namche Bazaar", coordinates: [86.7131, 27.8067] as [number, number] },
+          { name: "Tengboche", coordinates: [86.7644, 27.8368] as [number, number] },
+          { name: "Dingboche", coordinates: [86.8306, 27.8925] as [number, number] },
+          { name: "Lobuche", coordinates: [86.8089, 27.9519] as [number, number] },
+          { name: "Everest Base Camp", coordinates: [86.8523, 27.9881] as [number, number] }
+        ],
+        isBookmarked: false,
+        status: "active"
+      },
     {
       id: "TR002",
       name: "Annapurna Circuit",
@@ -66,7 +86,8 @@ export const MapsPage = () => {
         { name: "Jomsom", coordinates: [83.7231, 28.7806] },
         { name: "Pokhara", coordinates: [83.9856, 28.2096] }
       ],
-      isBookmarked: true
+      isBookmarked: true,
+      status: "active"
     },
     {
       id: "TR003",
@@ -82,7 +103,8 @@ export const MapsPage = () => {
         { name: "Langtang Village", coordinates: [85.5333, 28.2167] },
         { name: "Kyanjin Gompa", coordinates: [85.5500, 28.2167] }
       ],
-      isBookmarked: false
+      isBookmarked: false,
+      status: "active"
     },
     {
       id: "TR004",
@@ -99,11 +121,26 @@ export const MapsPage = () => {
         { name: "Larkya La Pass", coordinates: [84.5597, 28.5500] },
         { name: "Bimthang", coordinates: [84.5167, 28.5167] }
       ],
-      isBookmarked: false
+      isBookmarked: false,
+      status: "active"
     }
-  ]);
+    ];
+  };
 
+  const [routes, setRoutes] = useState<TrekkingRoute[]>(getRoutesFromStorage());
   const [filteredRoutes, setFilteredRoutes] = useState<TrekkingRoute[]>(routes);
+
+  // Update routes when admin adds new ones
+  useEffect(() => {
+    const handleStorageUpdate = () => {
+      const updatedRoutes = getRoutesFromStorage();
+      setRoutes(updatedRoutes);
+      setFilteredRoutes(updatedRoutes);
+    };
+
+    const interval = setInterval(handleStorageUpdate, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Initialize a simple map visualization
@@ -144,6 +181,12 @@ export const MapsPage = () => {
   };
 
   const handleBookmark = (routeId: string) => {
+    setRoutes(prev => prev.map(route => 
+      route.id === routeId 
+        ? { ...route, isBookmarked: !route.isBookmarked }
+        : route
+    ));
+    
     const route = routes.find(r => r.id === routeId);
     toast({
       title: route?.isBookmarked ? "Bookmark Removed" : "Route Bookmarked",
@@ -161,6 +204,9 @@ export const MapsPage = () => {
       default: return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Filter out routes that are not active
+  const activeRoutes = filteredRoutes.filter(route => !route.status || route.status === "active");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
@@ -208,8 +254,8 @@ export const MapsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Routes List */}
           <div className="lg:col-span-1 space-y-4">
-            <h3 className="text-lg font-semibold">Available Routes</h3>
-            {filteredRoutes.map((route) => (
+            <h3 className="text-lg font-semibold">Available Routes ({activeRoutes.length})</h3>
+            {activeRoutes.map((route) => (
               <Card 
                 key={route.id} 
                 className={`cursor-pointer transition-all ${selectedRoute?.id === route.id ? 'ring-2 ring-primary' : ''}`}
@@ -330,7 +376,7 @@ export const MapsPage = () => {
           </div>
         </div>
 
-        {filteredRoutes.length === 0 && (
+        {activeRoutes.length === 0 && (
           <Card>
             <CardContent className="text-center py-8">
               <p className="text-muted-foreground">No routes found matching your search criteria.</p>
