@@ -19,6 +19,8 @@ interface Booking {
   status: string;
   amount: string;
   type?: string;
+  userEmail?: string;
+  isDefault?: boolean;
 }
 
 export const BookingManagement = () => {
@@ -27,6 +29,7 @@ export const BookingManagement = () => {
   // Get all bookings from localStorage and default bookings
   const getAllBookings = () => {
     const userBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const adminBookings = JSON.parse(localStorage.getItem("adminBookings") || "[]");
     const defaultBookings = [
       {
         id: "BK001",
@@ -36,7 +39,8 @@ export const BookingManagement = () => {
         checkOut: "2024-01-18",
         status: "confirmed",
         amount: "$450",
-        type: "hotel"
+        type: "hotel",
+        isDefault: true
       },
       {
         id: "BK002",
@@ -46,7 +50,8 @@ export const BookingManagement = () => {
         checkOut: "2024-01-25",
         status: "pending",
         amount: "$890",
-        type: "hotel"
+        type: "hotel",
+        isDefault: true
       },
       {
         id: "BK003",
@@ -56,11 +61,54 @@ export const BookingManagement = () => {
         checkOut: "2024-01-24",
         status: "confirmed",
         amount: "$320",
-        type: "hotel"
+        type: "hotel",
+        isDefault: true
       }
     ];
     
-    return [...defaultBookings, ...userBookings];
+    // Convert user bookings to admin format
+    const convertedUserBookings = userBookings.map((booking: any) => {
+      if (booking.type === "hotel") {
+        return {
+          id: booking.id,
+          guest: booking.userEmail || "User",
+          hotel: booking.hotelName || "Unknown Hotel",
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          status: booking.status,
+          amount: `$${booking.totalPrice || 0}`,
+          type: "hotel",
+          userEmail: booking.userEmail
+        };
+      } else if (booking.type === "equipment") {
+        return {
+          id: booking.id,
+          guest: booking.userEmail || "User",
+          hotel: booking.equipmentName || "Unknown Equipment",
+          checkIn: booking.startDate,
+          checkOut: booking.endDate,
+          status: booking.status,
+          amount: `$${booking.dailyPrice || 0}/day`,
+          type: "equipment",
+          userEmail: booking.userEmail
+        };
+      } else if (booking.type === "trekking") {
+        return {
+          id: booking.id,
+          guest: booking.userEmail || "User",
+          hotel: booking.routeName || "Unknown Route",
+          checkIn: booking.startDate,
+          checkOut: booking.endDate,
+          status: booking.status,
+          amount: `$${booking.totalPrice || 0}`,
+          type: "trekking",
+          userEmail: booking.userEmail
+        };
+      }
+      return booking;
+    });
+    
+    return [...defaultBookings, ...adminBookings, ...convertedUserBookings];
   };
 
   const [bookings, setBookings] = useState<Booking[]>(getAllBookings());
@@ -103,22 +151,45 @@ export const BookingManagement = () => {
     e.preventDefault();
     
     if (editingBooking) {
-      setBookings(prev => prev.map(booking => 
+      if (editingBooking.isDefault) {
+        // Can't edit default bookings
+        toast({
+          title: "Cannot Edit",
+          description: "Default bookings cannot be modified.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update booking logic
+      const updatedBookings = bookings.map(booking => 
         booking.id === editingBooking.id 
           ? { ...booking, ...formData }
           : booking
-      ));
+      );
+      
+      // Update localStorage for admin bookings
+      const adminBookings = updatedBookings.filter(b => !b.isDefault && !b.userEmail);
+      localStorage.setItem("adminBookings", JSON.stringify(adminBookings));
+      
+      setBookings(getAllBookings());
       toast({
         title: "Booking Updated",
         description: "The booking has been successfully updated.",
       });
     } else {
       const newBooking: Booking = {
-        id: `BK${String(bookings.length + 1).padStart(3, '0')}`,
+        id: `ADM${Date.now()}`,
         ...formData,
         type: "hotel"
       };
-      setBookings(prev => [...prev, newBooking]);
+      
+      // Add to admin bookings
+      const existingAdminBookings = JSON.parse(localStorage.getItem("adminBookings") || "[]");
+      const updatedAdminBookings = [...existingAdminBookings, newBooking];
+      localStorage.setItem("adminBookings", JSON.stringify(updatedAdminBookings));
+      
+      setBookings(getAllBookings());
       toast({
         title: "Booking Created",
         description: "New booking has been created successfully.",
@@ -130,6 +201,15 @@ export const BookingManagement = () => {
   };
 
   const handleEdit = (booking: Booking) => {
+    if (booking.isDefault) {
+      toast({
+        title: "Cannot Edit",
+        description: "Default bookings cannot be modified.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingBooking(booking);
     setFormData({
       guest: booking.guest,
@@ -143,7 +223,30 @@ export const BookingManagement = () => {
   };
 
   const handleDelete = (id: string) => {
-    setBookings(prev => prev.filter(booking => booking.id !== id));
+    const bookingToDelete = bookings.find(b => b.id === id);
+    
+    if (bookingToDelete?.isDefault) {
+      toast({
+        title: "Cannot Delete",
+        description: "Default bookings cannot be deleted.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (bookingToDelete?.userEmail) {
+      // This is a user booking, remove from userBookings
+      const userBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+      const updatedUserBookings = userBookings.filter((booking: any) => booking.id !== id);
+      localStorage.setItem("userBookings", JSON.stringify(updatedUserBookings));
+    } else {
+      // This is an admin booking, remove from adminBookings
+      const adminBookings = JSON.parse(localStorage.getItem("adminBookings") || "[]");
+      const updatedAdminBookings = adminBookings.filter((booking: any) => booking.id !== id);
+      localStorage.setItem("adminBookings", JSON.stringify(updatedAdminBookings));
+    }
+
+    setBookings(getAllBookings());
     toast({
       title: "Booking Deleted",
       description: "The booking has been deleted successfully.",
@@ -163,6 +266,7 @@ export const BookingManagement = () => {
     switch (type) {
       case "hotel": return "bg-blue-100 text-blue-800";
       case "trekking": return "bg-green-100 text-green-800";
+      case "equipment": return "bg-purple-100 text-purple-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -296,6 +400,7 @@ export const BookingManagement = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => handleEdit(booking)}
+                    disabled={booking.isDefault}
                   >
                     <Pencil className="w-3 h-3" />
                   </Button>
@@ -303,6 +408,7 @@ export const BookingManagement = () => {
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDelete(booking.id)}
+                    disabled={booking.isDefault}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>

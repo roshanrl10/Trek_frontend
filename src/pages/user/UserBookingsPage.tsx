@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,14 @@ import { ArrowLeft, Hotel, Package, Calendar, MapPin, User } from "lucide-react"
 
 interface Booking {
   id: string;
-  type: "hotel" | "equipment";
+  type: "hotel" | "equipment" | "trekking";
   userEmail: string;
   hotelId?: string;
   hotelName?: string;
   equipmentId?: string;
   equipmentName?: string;
+  routeId?: string;
+  routeName?: string;
   checkIn?: string;
   checkOut?: string;
   startDate?: string;
@@ -33,15 +34,27 @@ export const UserBookingsPage = () => {
   const userEmail = localStorage.getItem("user");
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  useEffect(() => {
+  const loadBookings = () => {
     // Load user's bookings from localStorage
     const allBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
     const userBookings = allBookings.filter((booking: Booking) => booking.userEmail === userEmail);
     setBookings(userBookings);
+  };
+
+  useEffect(() => {
+    loadBookings();
+    
+    // Set up interval to check for changes (in case admin deletes bookings)
+    const interval = setInterval(() => {
+      loadBookings();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [userEmail]);
 
   const hotelBookings = bookings.filter(booking => booking.type === "hotel");
   const equipmentBookings = bookings.filter(booking => booking.type === "equipment");
+  const trekkingBookings = bookings.filter(booking => booking.type === "trekking");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -59,6 +72,15 @@ export const UserBookingsPage = () => {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  const handleCancelBooking = (bookingId: string) => {
+    const allBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const updatedBookings = allBookings.map((booking: Booking) => 
+      booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
+    );
+    localStorage.setItem("userBookings", JSON.stringify(updatedBookings));
+    loadBookings();
   };
 
   return (
@@ -83,7 +105,7 @@ export const UserBookingsPage = () => {
               Your Bookings
             </CardTitle>
             <CardDescription>
-              View and manage all your hotel bookings and equipment rentals
+              View and manage all your hotel bookings, equipment rentals, and trekking adventures
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -92,6 +114,7 @@ export const UserBookingsPage = () => {
                 <TabsTrigger value="all">All Bookings ({bookings.length})</TabsTrigger>
                 <TabsTrigger value="hotels">Hotels ({hotelBookings.length})</TabsTrigger>
                 <TabsTrigger value="equipment">Equipment ({equipmentBookings.length})</TabsTrigger>
+                <TabsTrigger value="trekking">Trekking ({trekkingBookings.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="all">
@@ -107,6 +130,9 @@ export const UserBookingsPage = () => {
                           <Button variant="outline" onClick={() => navigate("/user-dashboard/equipment")}>
                             Rent Equipment
                           </Button>
+                          <Button variant="outline" onClick={() => navigate("/user-dashboard/maps")}>
+                            Book Trekking
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -119,11 +145,15 @@ export const UserBookingsPage = () => {
                               <div className="flex items-center gap-2 mb-2">
                                 {booking.type === "hotel" ? (
                                   <Hotel className="w-4 h-4 text-blue-500" />
-                                ) : (
+                                ) : booking.type === "equipment" ? (
                                   <Package className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <MapPin className="w-4 h-4 text-purple-500" />
                                 )}
                                 <h3 className="font-semibold">
-                                  {booking.type === "hotel" ? booking.hotelName : booking.equipmentName}
+                                  {booking.type === "hotel" ? booking.hotelName : 
+                                   booking.type === "equipment" ? booking.equipmentName : 
+                                   booking.routeName}
                                 </h3>
                                 <Badge className={getStatusColor(booking.status)}>
                                   {booking.status}
@@ -146,7 +176,12 @@ export const UserBookingsPage = () => {
                                   <>
                                     <div>Start: {booking.startDate}</div>
                                     <div>End: {booking.endDate}</div>
-                                    <div>Quantity: {booking.quantity}{booking.size && ` (Size: ${booking.size})`}</div>
+                                    <div>
+                                      {booking.type === "equipment" 
+                                        ? `Quantity: ${booking.quantity}${booking.size ? ` (Size: ${booking.size})` : ''}`
+                                        : `Participants: ${booking.quantity || 1}`
+                                      }
+                                    </div>
                                   </>
                                 )}
                               </div>
@@ -154,7 +189,7 @@ export const UserBookingsPage = () => {
                             
                             <div className="text-right">
                               <div className="font-semibold">
-                                {booking.type === "hotel" ? (
+                                {booking.type === "hotel" || booking.type === "trekking" ? (
                                   `$${booking.totalPrice}`
                                 ) : (
                                   `$${booking.dailyPrice}/day`
@@ -164,6 +199,16 @@ export const UserBookingsPage = () => {
                                 <div className="text-sm text-muted-foreground">
                                   Total: ${(booking.dailyPrice || 0) * calculateDays(booking.startDate, booking.endDate)}
                                 </div>
+                              )}
+                              {booking.status === "pending" && (
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive" 
+                                  className="mt-2"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
                               )}
                             </div>
                           </div>
@@ -266,6 +311,65 @@ export const UserBookingsPage = () => {
                                 <div className="text-sm text-muted-foreground">
                                   Total: ${(booking.dailyPrice || 0) * calculateDays(booking.startDate, booking.endDate)}
                                 </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="trekking">
+                <div className="grid gap-4">
+                  {trekkingBookings.length === 0 ? (
+                    <Card>
+                      <CardContent className="text-center py-8">
+                        <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No trekking bookings found.</p>
+                        <Button onClick={() => navigate("/user-dashboard/maps")} className="mt-4">
+                          Book Trekking
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    trekkingBookings.map((booking) => (
+                      <Card key={booking.id}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <MapPin className="w-4 h-4 text-purple-500" />
+                                <h3 className="font-semibold">{booking.routeName}</h3>
+                                <Badge className={getStatusColor(booking.status)}>
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Booked: {booking.bookingDate}</span>
+                                </div>
+                                <div>Start: {booking.startDate}</div>
+                                <div>End: {booking.endDate}</div>
+                                <div>Participants: {booking.quantity || 1}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="text-right">
+                              <div className="font-semibold">${booking.totalPrice}</div>
+                              <div className="text-sm text-muted-foreground">total cost</div>
+                              {booking.status === "pending" && (
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive" 
+                                  className="mt-2"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
                               )}
                             </div>
                           </div>
