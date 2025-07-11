@@ -1,23 +1,41 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Hotel, 
-  Backpack, 
-  CloudSun, 
-  Map, 
-  Users, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Hotel,
+  Backpack,
+  CloudSun,
+  Map,
+  Users,
   Calendar,
   TrendingUp,
   MapPin,
   Star,
-  Plus
+  Plus,
 } from "lucide-react";
 import { AdminStats } from "@/components/admin/AdminStats";
 import { BookingManagement } from "@/components/admin/BookingManagement";
@@ -43,7 +61,22 @@ const AdminDashboard = () => {
     navigate("/login");
   };
 
-  const userEmail = localStorage.getItem("user");
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/login");
+    } else {
+      try {
+        const parsed = JSON.parse(user);
+        setUsername(parsed.username); // ✅ Set only the username
+      } catch (err) {
+        console.error("Invalid user data");
+        navigate("/login");
+      }
+    }
+  }, [navigate]);
 
   // Hotel management state
   const [isAddHotelOpen, setIsAddHotelOpen] = useState(false);
@@ -54,7 +87,7 @@ const AdminDashboard = () => {
     rating: "",
     image: "",
     amenities: "",
-    description: ""
+    description: "",
   });
 
   // Equipment management state
@@ -68,7 +101,7 @@ const AdminDashboard = () => {
     description: "",
     features: "",
     available: "",
-    size: ""
+    size: "",
   });
 
   // Agency management state
@@ -83,7 +116,7 @@ const AdminDashboard = () => {
     specialties: "",
     description: "",
     experience: "",
-    groupSize: ""
+    groupSize: "",
   });
 
   // Guide management state
@@ -96,12 +129,14 @@ const AdminDashboard = () => {
     languages: "",
     agency: "",
     pricePerDay: "",
-    description: ""
+    description: "",
   });
 
   const handleAddHotel = () => {
-    const existingHotels = JSON.parse(localStorage.getItem("adminHotels") || "[]");
-    
+    const existingHotels = JSON.parse(
+      localStorage.getItem("adminHotels") || "[]"
+    );
+
     const newHotel = {
       id: `H${Date.now()}`,
       name: hotelForm.name,
@@ -109,9 +144,9 @@ const AdminDashboard = () => {
       price: parseInt(hotelForm.price),
       rating: parseFloat(hotelForm.rating),
       image: hotelForm.image,
-      amenities: hotelForm.amenities.split(",").map(a => a.trim()),
+      amenities: hotelForm.amenities.split(",").map((a) => a.trim()),
       description: hotelForm.description,
-      available: true
+      available: true,
     };
 
     const updatedHotels = [...existingHotels, newHotel];
@@ -130,13 +165,15 @@ const AdminDashboard = () => {
       rating: "",
       image: "",
       amenities: "",
-      description: ""
+      description: "",
     });
   };
 
   const handleAddEquipment = () => {
-    const existingEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
-    
+    const existingEquipment = JSON.parse(
+      localStorage.getItem("adminEquipment") || "[]"
+    );
+
     const newEquipment = {
       id: `E${Date.now()}`,
       name: equipmentForm.name,
@@ -145,10 +182,12 @@ const AdminDashboard = () => {
       brand: equipmentForm.brand,
       image: equipmentForm.image,
       description: equipmentForm.description,
-      features: equipmentForm.features.split(",").map(f => f.trim()),
+      features: equipmentForm.features.split(",").map((f) => f.trim()),
       available: parseInt(equipmentForm.available),
-      size: equipmentForm.size ? equipmentForm.size.split(",").map(s => s.trim()) : undefined,
-      rating: 4.5
+      size: equipmentForm.size
+        ? equipmentForm.size.split(",").map((s) => s.trim())
+        : undefined,
+      rating: 4.5,
     };
 
     const updatedEquipment = [...existingEquipment, newEquipment];
@@ -169,26 +208,30 @@ const AdminDashboard = () => {
       description: "",
       features: "",
       available: "",
-      size: ""
+      size: "",
     });
   };
 
   const handleAddAgency = () => {
-    const existingAgencies = JSON.parse(localStorage.getItem("adminAgencies") || "[]");
-    
+    const existingAgencies = JSON.parse(
+      localStorage.getItem("adminAgencies") || "[]"
+    );
+
     const newAgency = {
       id: `AG${Date.now()}`,
       name: agencyForm.name,
       location: agencyForm.location,
       pricePerDay: parseInt(agencyForm.pricePerDay),
       rating: parseFloat(agencyForm.rating),
-      image: agencyForm.image || "https://images.unsplash.com/photo-1464822759844-d150ad6d1a0e?auto=format&fit=crop&w=400&h=300",
-      languages: agencyForm.languages.split(",").map(l => l.trim()),
-      specialties: agencyForm.specialties.split(",").map(s => s.trim()),
+      image:
+        agencyForm.image ||
+        "https://images.unsplash.com/photo-1464822759844-d150ad6d1a0e?auto=format&fit=crop&w=400&h=300",
+      languages: agencyForm.languages.split(",").map((l) => l.trim()),
+      specialties: agencyForm.specialties.split(",").map((s) => s.trim()),
       description: agencyForm.description,
       available: true,
       experience: parseInt(agencyForm.experience),
-      groupSize: agencyForm.groupSize
+      groupSize: agencyForm.groupSize,
     };
 
     const updatedAgencies = [...existingAgencies, newAgency];
@@ -210,13 +253,15 @@ const AdminDashboard = () => {
       specialties: "",
       description: "",
       experience: "",
-      groupSize: ""
+      groupSize: "",
     });
   };
 
   const handleAddGuide = () => {
-    const existingGuides = JSON.parse(localStorage.getItem("adminGuides") || "[]");
-    
+    const existingGuides = JSON.parse(
+      localStorage.getItem("adminGuides") || "[]"
+    );
+
     const newGuide = {
       id: `GD${Date.now()}`,
       name: guideForm.name,
@@ -227,7 +272,7 @@ const AdminDashboard = () => {
       status: "available",
       agency: guideForm.agency,
       pricePerDay: guideForm.pricePerDay,
-      description: guideForm.description
+      description: guideForm.description,
     };
 
     const updatedGuides = [...existingGuides, newGuide];
@@ -247,7 +292,7 @@ const AdminDashboard = () => {
       languages: "",
       agency: "",
       pricePerDay: "",
-      description: ""
+      description: "",
     });
   };
 
@@ -261,8 +306,13 @@ const AdminDashboard = () => {
               <h1 className="text-xl font-bold text-foreground">T-rek Admin</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">Welcome, {userEmail}</span>
-              <Button onClick={handleLogout} variant="outline">Logout</Button>
+              <span className="text-sm text-muted-foreground">
+                Welcome, {username}
+              </span>
+
+              <Button onClick={handleLogout} variant="outline">
+                Logout
+              </Button>
             </div>
           </div>
         </div>
@@ -281,7 +331,9 @@ const AdminDashboard = () => {
                 <Hotel className="w-5 h-5 text-blue-500" />
                 Hotel Management
               </CardTitle>
-              <CardDescription>Manage hotel reservations and add new hotels</CardDescription>
+              <CardDescription>
+                Manage hotel reservations and add new hotels
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -302,7 +354,9 @@ const AdminDashboard = () => {
                         <Input
                           id="hotelName"
                           value={hotelForm.name}
-                          onChange={(e) => setHotelForm({ ...hotelForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({ ...hotelForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div>
@@ -310,7 +364,12 @@ const AdminDashboard = () => {
                         <Input
                           id="hotelLocation"
                           value={hotelForm.location}
-                          onChange={(e) => setHotelForm({ ...hotelForm, location: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              location: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -319,7 +378,12 @@ const AdminDashboard = () => {
                           id="hotelPrice"
                           type="number"
                           value={hotelForm.price}
-                          onChange={(e) => setHotelForm({ ...hotelForm, price: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              price: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -331,7 +395,12 @@ const AdminDashboard = () => {
                           min="1"
                           max="5"
                           value={hotelForm.rating}
-                          onChange={(e) => setHotelForm({ ...hotelForm, rating: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              rating: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="col-span-2">
@@ -339,16 +408,28 @@ const AdminDashboard = () => {
                         <Input
                           id="hotelImage"
                           value={hotelForm.image}
-                          onChange={(e) => setHotelForm({ ...hotelForm, image: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              image: e.target.value,
+                            })
+                          }
                           placeholder="https://example.com/hotel-image.jpg"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor="hotelAmenities">Amenities (comma-separated)</Label>
+                        <Label htmlFor="hotelAmenities">
+                          Amenities (comma-separated)
+                        </Label>
                         <Input
                           id="hotelAmenities"
                           value={hotelForm.amenities}
-                          onChange={(e) => setHotelForm({ ...hotelForm, amenities: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              amenities: e.target.value,
+                            })
+                          }
                           placeholder="WiFi, Parking, Restaurant, Gym"
                         />
                       </div>
@@ -357,16 +438,22 @@ const AdminDashboard = () => {
                         <Textarea
                           id="hotelDescription"
                           value={hotelForm.description}
-                          onChange={(e) => setHotelForm({ ...hotelForm, description: e.target.value })}
+                          onChange={(e) =>
+                            setHotelForm({
+                              ...hotelForm,
+                              description: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="col-span-2 flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddHotelOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddHotelOpen(false)}
+                        >
                           Cancel
                         </Button>
-                        <Button onClick={handleAddHotel}>
-                          Add Hotel
-                        </Button>
+                        <Button onClick={handleAddHotel}>Add Hotel</Button>
                       </div>
                     </div>
                   </DialogContent>
@@ -383,11 +470,16 @@ const AdminDashboard = () => {
                 <Backpack className="w-5 h-5 text-green-500" />
                 Equipment Management
               </CardTitle>
-              <CardDescription>Track equipment rentals and add new equipment</CardDescription>
+              <CardDescription>
+                Track equipment rentals and add new equipment
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Dialog open={isAddEquipmentOpen} onOpenChange={setIsAddEquipmentOpen}>
+                <Dialog
+                  open={isAddEquipmentOpen}
+                  onOpenChange={setIsAddEquipmentOpen}
+                >
                   <DialogTrigger asChild>
                     <Button className="w-full mb-4">
                       <Plus className="w-4 h-4 mr-2" />
@@ -404,14 +496,24 @@ const AdminDashboard = () => {
                         <Input
                           id="equipmentName"
                           value={equipmentForm.name}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              name: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
                         <Label htmlFor="equipmentCategory">Category</Label>
                         <Select
                           value={equipmentForm.category}
-                          onValueChange={(value) => setEquipmentForm({ ...equipmentForm, category: value })}
+                          onValueChange={(value) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              category: value,
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
@@ -420,7 +522,9 @@ const AdminDashboard = () => {
                             <SelectItem value="Footwear">Footwear</SelectItem>
                             <SelectItem value="Sleeping">Sleeping</SelectItem>
                             <SelectItem value="Bags">Bags</SelectItem>
-                            <SelectItem value="Accessories">Accessories</SelectItem>
+                            <SelectItem value="Accessories">
+                              Accessories
+                            </SelectItem>
                             <SelectItem value="Shelter">Shelter</SelectItem>
                             <SelectItem value="Clothing">Clothing</SelectItem>
                             <SelectItem value="Safety">Safety</SelectItem>
@@ -428,12 +532,19 @@ const AdminDashboard = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="equipmentPrice">Price per Day ($)</Label>
+                        <Label htmlFor="equipmentPrice">
+                          Price per Day ($)
+                        </Label>
                         <Input
                           id="equipmentPrice"
                           type="number"
                           value={equipmentForm.price}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, price: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              price: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -441,24 +552,43 @@ const AdminDashboard = () => {
                         <Input
                           id="equipmentBrand"
                           value={equipmentForm.brand}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, brand: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              brand: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="equipmentAvailable">Available Quantity</Label>
+                        <Label htmlFor="equipmentAvailable">
+                          Available Quantity
+                        </Label>
                         <Input
                           id="equipmentAvailable"
                           type="number"
                           value={equipmentForm.available}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, available: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              available: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="equipmentSize">Sizes (comma-separated, optional)</Label>
+                        <Label htmlFor="equipmentSize">
+                          Sizes (comma-separated, optional)
+                        </Label>
                         <Input
                           id="equipmentSize"
                           value={equipmentForm.size}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, size: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              size: e.target.value,
+                            })
+                          }
                           placeholder="S, M, L, XL"
                         />
                       </div>
@@ -467,29 +597,51 @@ const AdminDashboard = () => {
                         <Input
                           id="equipmentImage"
                           value={equipmentForm.image}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, image: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              image: e.target.value,
+                            })
+                          }
                           placeholder="https://example.com/equipment-image.jpg"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor="equipmentFeatures">Features (comma-separated)</Label>
+                        <Label htmlFor="equipmentFeatures">
+                          Features (comma-separated)
+                        </Label>
                         <Input
                           id="equipmentFeatures"
                           value={equipmentForm.features}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, features: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              features: e.target.value,
+                            })
+                          }
                           placeholder="Waterproof, Lightweight, Durable"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor="equipmentDescription">Description</Label>
+                        <Label htmlFor="equipmentDescription">
+                          Description
+                        </Label>
                         <Textarea
                           id="equipmentDescription"
                           value={equipmentForm.description}
-                          onChange={(e) => setEquipmentForm({ ...equipmentForm, description: e.target.value })}
+                          onChange={(e) =>
+                            setEquipmentForm({
+                              ...equipmentForm,
+                              description: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="col-span-2 flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddEquipmentOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddEquipmentOpen(false)}
+                        >
                           Cancel
                         </Button>
                         <Button onClick={handleAddEquipment}>
@@ -511,7 +663,9 @@ const AdminDashboard = () => {
                 <CloudSun className="w-5 h-5 text-orange-500" />
                 Weather Monitoring
               </CardTitle>
-              <CardDescription>Track weather conditions for trekking routes</CardDescription>
+              <CardDescription>
+                Track weather conditions for trekking routes
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <WeatherDashboard />
@@ -540,13 +694,18 @@ const AdminDashboard = () => {
               <Users className="w-5 h-5 text-red-500" />
               Agency & Guide Management
             </CardTitle>
-            <CardDescription>Manage trekking agencies and guides</CardDescription>
+            <CardDescription>
+              Manage trekking agencies and guides
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {/* Add Agency and Guide Buttons */}
               <div className="flex gap-4 mb-6">
-                <Dialog open={isAddAgencyOpen} onOpenChange={setIsAddAgencyOpen}>
+                <Dialog
+                  open={isAddAgencyOpen}
+                  onOpenChange={setIsAddAgencyOpen}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
@@ -563,7 +722,12 @@ const AdminDashboard = () => {
                         <Input
                           id="agencyName"
                           value={agencyForm.name}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              name: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -571,7 +735,12 @@ const AdminDashboard = () => {
                         <Input
                           id="agencyLocation"
                           value={agencyForm.location}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, location: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              location: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -580,7 +749,12 @@ const AdminDashboard = () => {
                           id="agencyPrice"
                           type="number"
                           value={agencyForm.pricePerDay}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, pricePerDay: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              pricePerDay: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -592,16 +766,28 @@ const AdminDashboard = () => {
                           min="1"
                           max="5"
                           value={agencyForm.rating}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, rating: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              rating: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="agencyExperience">Experience (years)</Label>
+                        <Label htmlFor="agencyExperience">
+                          Experience (years)
+                        </Label>
                         <Input
                           id="agencyExperience"
                           type="number"
                           value={agencyForm.experience}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, experience: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              experience: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -609,7 +795,12 @@ const AdminDashboard = () => {
                         <Input
                           id="agencyGroupSize"
                           value={agencyForm.groupSize}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, groupSize: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              groupSize: e.target.value,
+                            })
+                          }
                           placeholder="1-12 people"
                         />
                       </div>
@@ -618,25 +809,44 @@ const AdminDashboard = () => {
                         <Input
                           id="agencyImage"
                           value={agencyForm.image}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, image: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              image: e.target.value,
+                            })
+                          }
                           placeholder="https://example.com/agency-image.jpg"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor="agencyLanguages">Languages (comma-separated)</Label>
+                        <Label htmlFor="agencyLanguages">
+                          Languages (comma-separated)
+                        </Label>
                         <Input
                           id="agencyLanguages"
                           value={agencyForm.languages}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, languages: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              languages: e.target.value,
+                            })
+                          }
                           placeholder="English, Nepali, Hindi"
                         />
                       </div>
                       <div className="col-span-2">
-                        <Label htmlFor="agencySpecialties">Specialties (comma-separated)</Label>
+                        <Label htmlFor="agencySpecialties">
+                          Specialties (comma-separated)
+                        </Label>
                         <Input
                           id="agencySpecialties"
                           value={agencyForm.specialties}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, specialties: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              specialties: e.target.value,
+                            })
+                          }
                           placeholder="High Altitude Trekking, Cultural Tours"
                         />
                       </div>
@@ -645,16 +855,22 @@ const AdminDashboard = () => {
                         <Textarea
                           id="agencyDescription"
                           value={agencyForm.description}
-                          onChange={(e) => setAgencyForm({ ...agencyForm, description: e.target.value })}
+                          onChange={(e) =>
+                            setAgencyForm({
+                              ...agencyForm,
+                              description: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="col-span-2 flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddAgencyOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddAgencyOpen(false)}
+                        >
                           Cancel
                         </Button>
-                        <Button onClick={handleAddAgency}>
-                          Add Agency
-                        </Button>
+                        <Button onClick={handleAddAgency}>Add Agency</Button>
                       </div>
                     </div>
                   </DialogContent>
@@ -677,7 +893,9 @@ const AdminDashboard = () => {
                         <Input
                           id="guideName"
                           value={guideForm.name}
-                          onChange={(e) => setGuideForm({ ...guideForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({ ...guideForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div>
@@ -685,7 +903,12 @@ const AdminDashboard = () => {
                         <Input
                           id="guideExperience"
                           value={guideForm.experience}
-                          onChange={(e) => setGuideForm({ ...guideForm, experience: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              experience: e.target.value,
+                            })
+                          }
                           placeholder="8 years"
                         />
                       </div>
@@ -694,7 +917,12 @@ const AdminDashboard = () => {
                         <Input
                           id="guideSpeciality"
                           value={guideForm.speciality}
-                          onChange={(e) => setGuideForm({ ...guideForm, speciality: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              speciality: e.target.value,
+                            })
+                          }
                           placeholder="High Altitude, Cultural Tours"
                         />
                       </div>
@@ -707,7 +935,12 @@ const AdminDashboard = () => {
                           min="1"
                           max="5"
                           value={guideForm.rating}
-                          onChange={(e) => setGuideForm({ ...guideForm, rating: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              rating: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div>
@@ -715,7 +948,12 @@ const AdminDashboard = () => {
                         <Input
                           id="guideAgency"
                           value={guideForm.agency}
-                          onChange={(e) => setGuideForm({ ...guideForm, agency: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              agency: e.target.value,
+                            })
+                          }
                           placeholder="Agency Name"
                         />
                       </div>
@@ -724,7 +962,12 @@ const AdminDashboard = () => {
                         <Input
                           id="guidePricePerDay"
                           value={guideForm.pricePerDay}
-                          onChange={(e) => setGuideForm({ ...guideForm, pricePerDay: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              pricePerDay: e.target.value,
+                            })
+                          }
                           placeholder="$80"
                         />
                       </div>
@@ -733,7 +976,12 @@ const AdminDashboard = () => {
                         <Input
                           id="guideLanguages"
                           value={guideForm.languages}
-                          onChange={(e) => setGuideForm({ ...guideForm, languages: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              languages: e.target.value,
+                            })
+                          }
                           placeholder="English, Nepali, Hindi"
                         />
                       </div>
@@ -742,22 +990,28 @@ const AdminDashboard = () => {
                         <Textarea
                           id="guideDescription"
                           value={guideForm.description}
-                          onChange={(e) => setGuideForm({ ...guideForm, description: e.target.value })}
+                          onChange={(e) =>
+                            setGuideForm({
+                              ...guideForm,
+                              description: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="col-span-2 flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddGuideOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddGuideOpen(false)}
+                        >
                           Cancel
                         </Button>
-                        <Button onClick={handleAddGuide}>
-                          Add Guide
-                        </Button>
+                        <Button onClick={handleAddGuide}>Add Guide</Button>
                       </div>
                     </div>
                   </DialogContent>
                 </Dialog>
               </div>
-              
+
               <AgencyManagement />
             </div>
           </CardContent>

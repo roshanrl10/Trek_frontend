@@ -2,14 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Corrected Page Imports
+// Page Imports
 import Index from "./pages/Index";
-import Login from "./pages/Login"; // ✅ FIXED
-import Signup from "./pages/Signup"; // ✅ FIXED
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
-import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import { HotelBookingPage } from "./pages/user/HotelBookingPage";
@@ -21,6 +20,20 @@ import { AgenciesPage } from "./pages/user/AgenciesPage";
 
 const queryClient = new QueryClient();
 
+// ✅ Role-based redirect logic
+const RoleRedirect = () => {
+  const user = localStorage.getItem("user");
+  if (!user) return <Navigate to="/login" replace />;
+
+  try {
+    const parsedUser = JSON.parse(user);
+    if (parsedUser.role === "admin") return <Navigate to="/admin" replace />;
+    return <Navigate to="/user-dashboard" replace />;
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -29,12 +42,17 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />{" "}
-          {/* ✅ Fixed route element */}
-          <Route path="/signup" element={<Signup />} />{" "}
-          {/* ✅ Fixed route element */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* ✅ Role-based smart redirect */}
+          <Route path="/dashboard" element={<RoleRedirect />} />
+
+          {/* Admin and User Dashboards */}
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
+
+          {/* User Routes */}
           <Route path="/user-dashboard/hotels" element={<HotelBookingPage />} />
           <Route
             path="/user-dashboard/equipment"
@@ -47,7 +65,7 @@ const App = () => (
             path="/user-dashboard/bookings"
             element={<UserBookingsPage />}
           />
-          <Route path="/admin" element={<AdminDashboard />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,4 +1,6 @@
-import LoginForm from "../components/LoginForm"; // ✅ make sure LoginForm is default export
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import LoginForm from "../components/LoginForm";
 import {
   Card,
   CardContent,
@@ -6,9 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user?.role === "admin") {
+      navigate("/admin");
+    } else if (user?.role === "normal") {
+      navigate("/user-dashboard");
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
       <div className="w-full max-w-md space-y-8">
@@ -31,8 +43,7 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <LoginForm />{" "}
-            {/* ✅ Fully featured login form with state + icons */}
+            <LoginForm />
           </CardContent>
         </Card>
 
