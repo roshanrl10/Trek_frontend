@@ -34,7 +34,7 @@ export const HotelBookingPage = () => {
     location: "",
     minPrice: "",
     maxPrice: "",
-    minRating: ""
+    minRating: "any"
   });
 
   const [bookingForm, setBookingForm] = useState({
@@ -118,7 +118,7 @@ export const HotelBookingPage = () => {
       filtered = filtered.filter(hotel => hotel.price <= parseInt(filters.maxPrice));
     }
 
-    if (filters.minRating) {
+    if (filters.minRating && filters.minRating !== "any") {
       filtered = filtered.filter(hotel => hotel.rating >= parseFloat(filters.minRating));
     }
 
@@ -130,7 +130,7 @@ export const HotelBookingPage = () => {
       location: "",
       minPrice: "",
       maxPrice: "",
-      minRating: ""
+      minRating: "any"
     });
     setFilteredHotels(hotels);
   };
@@ -239,7 +239,7 @@ export const HotelBookingPage = () => {
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Rating</SelectItem>
+                    <SelectItem value="any">Any Rating</SelectItem>
                     <SelectItem value="3">3+ Stars</SelectItem>
                     <SelectItem value="4">4+ Stars</SelectItem>
                     <SelectItem value="4.5">4.5+ Stars</SelectItem>
