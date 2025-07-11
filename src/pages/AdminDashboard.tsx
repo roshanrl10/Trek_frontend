@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -72,8 +71,35 @@ const AdminDashboard = () => {
     size: ""
   });
 
+  // Agency management state
+  const [isAddAgencyOpen, setIsAddAgencyOpen] = useState(false);
+  const [agencyForm, setAgencyForm] = useState({
+    name: "",
+    location: "",
+    pricePerDay: "",
+    rating: "",
+    image: "",
+    languages: "",
+    specialties: "",
+    description: "",
+    experience: "",
+    groupSize: ""
+  });
+
+  // Guide management state
+  const [isAddGuideOpen, setIsAddGuideOpen] = useState(false);
+  const [guideForm, setGuideForm] = useState({
+    name: "",
+    experience: "",
+    speciality: "",
+    rating: "",
+    languages: "",
+    agency: "",
+    pricePerDay: "",
+    description: ""
+  });
+
   const handleAddHotel = () => {
-    // Get existing hotels from localStorage
     const existingHotels = JSON.parse(localStorage.getItem("adminHotels") || "[]");
     
     const newHotel = {
@@ -109,7 +135,6 @@ const AdminDashboard = () => {
   };
 
   const handleAddEquipment = () => {
-    // Get existing equipment from localStorage
     const existingEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
     
     const newEquipment = {
@@ -123,7 +148,7 @@ const AdminDashboard = () => {
       features: equipmentForm.features.split(",").map(f => f.trim()),
       available: parseInt(equipmentForm.available),
       size: equipmentForm.size ? equipmentForm.size.split(",").map(s => s.trim()) : undefined,
-      rating: 4.5 // Default rating
+      rating: 4.5
     };
 
     const updatedEquipment = [...existingEquipment, newEquipment];
@@ -145,6 +170,84 @@ const AdminDashboard = () => {
       features: "",
       available: "",
       size: ""
+    });
+  };
+
+  const handleAddAgency = () => {
+    const existingAgencies = JSON.parse(localStorage.getItem("adminAgencies") || "[]");
+    
+    const newAgency = {
+      id: `AG${Date.now()}`,
+      name: agencyForm.name,
+      location: agencyForm.location,
+      pricePerDay: parseInt(agencyForm.pricePerDay),
+      rating: parseFloat(agencyForm.rating),
+      image: agencyForm.image || "https://images.unsplash.com/photo-1464822759844-d150ad6d1a0e?auto=format&fit=crop&w=400&h=300",
+      languages: agencyForm.languages.split(",").map(l => l.trim()),
+      specialties: agencyForm.specialties.split(",").map(s => s.trim()),
+      description: agencyForm.description,
+      available: true,
+      experience: parseInt(agencyForm.experience),
+      groupSize: agencyForm.groupSize
+    };
+
+    const updatedAgencies = [...existingAgencies, newAgency];
+    localStorage.setItem("adminAgencies", JSON.stringify(updatedAgencies));
+
+    toast({
+      title: "Agency Added",
+      description: `${agencyForm.name} has been added successfully.`,
+    });
+
+    setIsAddAgencyOpen(false);
+    setAgencyForm({
+      name: "",
+      location: "",
+      pricePerDay: "",
+      rating: "",
+      image: "",
+      languages: "",
+      specialties: "",
+      description: "",
+      experience: "",
+      groupSize: ""
+    });
+  };
+
+  const handleAddGuide = () => {
+    const existingGuides = JSON.parse(localStorage.getItem("adminGuides") || "[]");
+    
+    const newGuide = {
+      id: `GD${Date.now()}`,
+      name: guideForm.name,
+      experience: guideForm.experience,
+      speciality: guideForm.speciality,
+      rating: parseFloat(guideForm.rating),
+      languages: guideForm.languages,
+      status: "available",
+      agency: guideForm.agency,
+      pricePerDay: guideForm.pricePerDay,
+      description: guideForm.description
+    };
+
+    const updatedGuides = [...existingGuides, newGuide];
+    localStorage.setItem("adminGuides", JSON.stringify(updatedGuides));
+
+    toast({
+      title: "Guide Added",
+      description: `${guideForm.name} has been added successfully.`,
+    });
+
+    setIsAddGuideOpen(false);
+    setGuideForm({
+      name: "",
+      experience: "",
+      speciality: "",
+      rating: "",
+      languages: "",
+      agency: "",
+      pricePerDay: "",
+      description: ""
     });
   };
 
@@ -440,7 +543,223 @@ const AdminDashboard = () => {
             <CardDescription>Manage trekking agencies and guides</CardDescription>
           </CardHeader>
           <CardContent>
-            <AgencyManagement />
+            <div className="space-y-6">
+              {/* Add Agency and Guide Buttons */}
+              <div className="flex gap-4 mb-6">
+                <Dialog open={isAddAgencyOpen} onOpenChange={setIsAddAgencyOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add New Agency
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add New Agency</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="agencyName">Agency Name</Label>
+                        <Input
+                          id="agencyName"
+                          value={agencyForm.name}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, name: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="agencyLocation">Location</Label>
+                        <Input
+                          id="agencyLocation"
+                          value={agencyForm.location}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, location: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="agencyPrice">Price per Day ($)</Label>
+                        <Input
+                          id="agencyPrice"
+                          type="number"
+                          value={agencyForm.pricePerDay}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, pricePerDay: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="agencyRating">Rating (1-5)</Label>
+                        <Input
+                          id="agencyRating"
+                          type="number"
+                          step="0.1"
+                          min="1"
+                          max="5"
+                          value={agencyForm.rating}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, rating: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="agencyExperience">Experience (years)</Label>
+                        <Input
+                          id="agencyExperience"
+                          type="number"
+                          value={agencyForm.experience}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, experience: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="agencyGroupSize">Group Size</Label>
+                        <Input
+                          id="agencyGroupSize"
+                          value={agencyForm.groupSize}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, groupSize: e.target.value })}
+                          placeholder="1-12 people"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="agencyImage">Image URL</Label>
+                        <Input
+                          id="agencyImage"
+                          value={agencyForm.image}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, image: e.target.value })}
+                          placeholder="https://example.com/agency-image.jpg"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="agencyLanguages">Languages (comma-separated)</Label>
+                        <Input
+                          id="agencyLanguages"
+                          value={agencyForm.languages}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, languages: e.target.value })}
+                          placeholder="English, Nepali, Hindi"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="agencySpecialties">Specialties (comma-separated)</Label>
+                        <Input
+                          id="agencySpecialties"
+                          value={agencyForm.specialties}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, specialties: e.target.value })}
+                          placeholder="High Altitude Trekking, Cultural Tours"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="agencyDescription">Description</Label>
+                        <Textarea
+                          id="agencyDescription"
+                          value={agencyForm.description}
+                          onChange={(e) => setAgencyForm({ ...agencyForm, description: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-span-2 flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsAddAgencyOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleAddAgency}>
+                          Add Agency
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isAddGuideOpen} onOpenChange={setIsAddGuideOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add New Guide
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add New Guide</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="guideName">Guide Name</Label>
+                        <Input
+                          id="guideName"
+                          value={guideForm.name}
+                          onChange={(e) => setGuideForm({ ...guideForm, name: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guideExperience">Experience</Label>
+                        <Input
+                          id="guideExperience"
+                          value={guideForm.experience}
+                          onChange={(e) => setGuideForm({ ...guideForm, experience: e.target.value })}
+                          placeholder="8 years"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guideSpeciality">Speciality</Label>
+                        <Input
+                          id="guideSpeciality"
+                          value={guideForm.speciality}
+                          onChange={(e) => setGuideForm({ ...guideForm, speciality: e.target.value })}
+                          placeholder="High Altitude, Cultural Tours"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guideRating">Rating (1-5)</Label>
+                        <Input
+                          id="guideRating"
+                          type="number"
+                          step="0.1"
+                          min="1"
+                          max="5"
+                          value={guideForm.rating}
+                          onChange={(e) => setGuideForm({ ...guideForm, rating: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guideAgency">Agency</Label>
+                        <Input
+                          id="guideAgency"
+                          value={guideForm.agency}
+                          onChange={(e) => setGuideForm({ ...guideForm, agency: e.target.value })}
+                          placeholder="Agency Name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="guidePricePerDay">Price per Day</Label>
+                        <Input
+                          id="guidePricePerDay"
+                          value={guideForm.pricePerDay}
+                          onChange={(e) => setGuideForm({ ...guideForm, pricePerDay: e.target.value })}
+                          placeholder="$80"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="guideLanguages">Languages</Label>
+                        <Input
+                          id="guideLanguages"
+                          value={guideForm.languages}
+                          onChange={(e) => setGuideForm({ ...guideForm, languages: e.target.value })}
+                          placeholder="English, Nepali, Hindi"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <Label htmlFor="guideDescription">Description</Label>
+                        <Textarea
+                          id="guideDescription"
+                          value={guideForm.description}
+                          onChange={(e) => setGuideForm({ ...guideForm, description: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-span-2 flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsAddGuideOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleAddGuide}>
+                          Add Guide
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <AgencyManagement />
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,11 +11,13 @@ interface Agency {
   name: string;
   location: string;
   rating: number;
-  guides: number;
-  speciality: string;
+  guides?: number;
+  speciality?: string;
+  specialties?: string[];
   status: string;
-  bookings: number;
-  pricePerDay: string;
+  bookings?: number;
+  pricePerDay: string | number;
+  available?: boolean;
 }
 
 interface Guide {
@@ -32,55 +34,85 @@ interface Guide {
 
 export const UserAgencyManagement = () => {
   const { toast } = useToast();
-  const [agencies] = useState<Agency[]>([
-    {
-      id: "AG001",
-      name: "Himalayan Adventures",
-      location: "Kathmandu",
-      rating: 4.8,
-      guides: 15,
-      speciality: "High Altitude Treks",
-      status: "active",
-      bookings: 45,
-      pricePerDay: "$120"
-    },
-    {
-      id: "AG002",
-      name: "Mountain Explorer Co.",
-      location: "Pokhara",
-      rating: 4.6,
-      guides: 12,
-      speciality: "Cultural Treks",
-      status: "active",
-      bookings: 32,
-      pricePerDay: "$100"
-    }
-  ]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
 
-  const [guides] = useState<Guide[]>([
-    {
-      id: "GD001",
-      name: "Pemba Sherpa",
-      experience: "12 years",
-      speciality: "High Altitude",
-      rating: 4.9,
-      languages: "English, Nepali, Hindi",
-      status: "available",
-      agency: "Himalayan Adventures",
-      pricePerDay: "$80"
-    },
-    {
-      id: "GD002",
-      name: "Tenzin Norbu",
-      experience: "8 years",
-      speciality: "Cultural Tours",
-      rating: 4.7,
-      languages: "English, Nepali",
-      status: "available",
-      agency: "Mountain Explorer Co.",
-      pricePerDay: "$70"
-    }
-  ]);
+  useEffect(() => {
+    // Load agencies from localStorage (both default and admin-added)
+    const adminAgencies = JSON.parse(localStorage.getItem("adminAgencies") || "[]");
+    const defaultAgencies = [
+      {
+        id: "AG001",
+        name: "Himalayan Adventures",
+        location: "Kathmandu",
+        rating: 4.8,
+        guides: 15,
+        speciality: "High Altitude Treks",
+        status: "active",
+        bookings: 45,
+        pricePerDay: "$120"
+      },
+      {
+        id: "AG002",
+        name: "Mountain Explorer Co.",
+        location: "Pokhara",
+        rating: 4.6,
+        guides: 12,
+        speciality: "Cultural Treks",
+        status: "active",
+        bookings: 32,
+        pricePerDay: "$100"
+      }
+    ];
+
+    // Combine default and admin agencies
+    const combinedAgencies = [
+      ...defaultAgencies,
+      ...adminAgencies.map((agency: any) => ({
+        ...agency,
+        status: "active",
+        pricePerDay: `$${agency.pricePerDay}`,
+        speciality: agency.specialties ? agency.specialties.join(", ") : agency.speciality || "General Trekking"
+      }))
+    ];
+
+    setAgencies(combinedAgencies);
+
+    // Load guides from localStorage (both default and admin-added)
+    const adminGuides = JSON.parse(localStorage.getItem("adminGuides") || "[]");
+    const defaultGuides = [
+      {
+        id: "GD001",
+        name: "Pemba Sherpa",
+        experience: "12 years",
+        speciality: "High Altitude",
+        rating: 4.9,
+        languages: "English, Nepali, Hindi",
+        status: "available",
+        agency: "Himalayan Adventures",
+        pricePerDay: "$80"
+      },
+      {
+        id: "GD002",
+        name: "Tenzin Norbu",
+        experience: "8 years",
+        speciality: "Cultural Tours",
+        rating: 4.7,
+        languages: "English, Nepali",
+        status: "available",
+        agency: "Mountain Explorer Co.",
+        pricePerDay: "$70"
+      }
+    ];
+
+    // Combine default and admin guides
+    const combinedGuides = [
+      ...defaultGuides,
+      ...adminGuides
+    ];
+
+    setGuides(combinedGuides);
+  }, []);
 
   const handleBookAgency = (agencyId: string) => {
     const agency = agencies.find(a => a.id === agencyId);
@@ -132,8 +164,10 @@ export const UserAgencyManagement = () => {
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           {agency.rating}
                         </span>
-                        <span>{agency.guides} guides</span>
-                        <span className="font-medium text-green-600">{agency.pricePerDay}/day</span>
+                        {agency.guides && <span>{agency.guides} guides</span>}
+                        <span className="font-medium text-green-600">
+                          {typeof agency.pricePerDay === 'string' ? agency.pricePerDay : `$${agency.pricePerDay}`}/day
+                        </span>
                       </div>
                       <p className="text-sm text-blue-600 mt-1">{agency.speciality}</p>
                     </div>
@@ -145,6 +179,7 @@ export const UserAgencyManagement = () => {
                     <Button
                       size="sm"
                       onClick={() => handleBookAgency(agency.id)}
+                      disabled={agency.status !== "active"}
                     >
                       <Calendar className="w-3 h-3 mr-1" />
                       Book Agency
