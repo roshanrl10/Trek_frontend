@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -204,8 +203,12 @@ export const AgenciesPage = () => {
     setBookingForm({ agencyId: "", startDate: "", endDate: "", groupSize: 1, specialRequests: "" });
   };
 
-  // Get unique specialties for filter options
-  const uniqueSpecialties = [...new Set(agencies.flatMap(agency => agency.specialties))];
+  // Get unique specialties for filter options - filter out empty strings
+  const uniqueSpecialties = [...new Set(
+    agencies
+      .flatMap(agency => agency.specialties || [])
+      .filter(specialty => specialty && specialty.trim() !== "")
+  )];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
