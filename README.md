@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+## 🏞️ T-rek App Features
 
-## Project info
+### 📱 App Overview
 
-**URL**: https://lovable.dev/projects/e9590060-31f4-4d68-aa80-c32bc03bb755
+**T-rek** is a modern trekking companion web app built with React, TypeScript, and Tailwind CSS. It provides both users and admins with tools to book hotels, rent equipment, manage agencies, view weather, and more, all with a clean, role-based dashboard experience.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🧩 Core Features
 
-**Use Lovable**
+### 1. 🔐 Authentication
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e9590060-31f4-4d68-aa80-c32bc03bb755) and start prompting.
+- Secure login and signup pages
+- Form validation and user credential handling
+- Role-based dashboard redirection (admin/user)
+- Session management via localStorage
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+### 2. 🏠 User Dashboard
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Hotel Booking:** Browse, filter, and book hotels for trekking adventures
+- **Equipment Rental:** Rent professional trekking equipment, filter by category/price, flexible rental periods
+- **Agencies & Guides:** Book certified agencies and experienced local guides, multi-language support
+- **My Bookings:** View all your bookings and reservations
+- **Weather:** View weather conditions for trekking locations
+- **Maps:** Explore trekking routes and locations
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+### 3. 🛠️ Admin Dashboard
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Stats Overview:** View total bookings, equipment rented, active guides, available routes, revenue, and upcoming treks
+- **Hotel Management:** Add, edit, and manage hotels
+- **Equipment Rental Management:** Add, edit, and manage rental equipment and bookings
+- **Agency & Guide Management:** Manage trekking agencies and guides, view status and bookings
+- **Route/Map Management:** Add and manage trekking routes (difficulty, duration, elevation, status)
+- **Weather Dashboard:** Monitor weather conditions at key trekking locations
+- **Booking Management:** View and manage all user bookings (hotel, equipment, trekking)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 4. 🌦️ Weather & Maps
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- Weather dashboard for key trekking locations (temperature, condition, wind, visibility)
+- Map management for admins (add/edit trekking routes, set status, view bookings per route)
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 5. 🖥️ Technologies Used
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
+- React + TypeScript
 - Tailwind CSS
+- React Router
+- LocalStorage for session and data persistence
+- Lucide React Icons
+- Modern UI components (custom and shadcn/ui)
+- Vite for fast development
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/e9590060-31f4-4d68-aa80-c32bc03bb755) and click on Share -> Publish.
+## 🚀 Getting Started
 
-## Can I connect a custom domain to my Lovable project?
+1. **Install dependencies:** `npm install`
+2. **Run the app:** `npm run dev`
+3. **Visit:** `http://localhost:5173`
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📝 Notes
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- This app is a frontend only (no backend API integration by default)
+- All data is stored in localStorage for demo purposes
+- Designed for easy extension with real backend/API
+
+---
