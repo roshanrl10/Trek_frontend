@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ interface Equipment {
   description: string;
   available: boolean;
   specifications?: string[];
+  sizes?: string[];
 }
 
 export const EquipmentRentalPage = () => {
@@ -31,6 +31,7 @@ export const EquipmentRentalPage = () => {
   
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
+
   const [filters, setFilters] = useState({
     category: "any",
     brand: "any",
@@ -48,101 +49,116 @@ export const EquipmentRentalPage = () => {
 
   const [isRentalOpen, setIsRentalOpen] = useState(false);
 
-  // Load equipment from localStorage (admin-added) and default equipment
   useEffect(() => {
     const loadEquipment = () => {
+      console.log("Loading equipment data...");
+      
       const adminEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
+      console.log("Admin equipment loaded:", adminEquipment);
+      
       const defaultEquipment = [
-      {
-        id: "E001",
-        name: "Professional Trekking Backpack",
-        category: "Backpacks",
-        brand: "The North Face",
-        price: 25,
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=400&h=300",
-        description: "65L capacity professional trekking backpack with weather protection.",
-        available: true,
-        specifications: ["65L capacity", "Weather resistant", "Multiple compartments", "Adjustable straps"]
-      },
-      {
-        id: "E002",
-        name: "4-Season Hiking Boots",
-        category: "Footwear",
-        brand: "Salomon",
-        price: 20,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&h=300",
-        description: "Waterproof hiking boots suitable for all weather conditions.",
-        available: true,
-        specifications: ["Waterproof", "Ankle support", "Vibram sole", "Breathable membrane"]
-      },
-      {
-        id: "E003",
-        name: "Mountaineering Tent",
-        category: "Shelter",
-        brand: "MSR",
-        price: 35,
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=300",
-        description: "2-person 4-season mountaineering tent built for extreme conditions.",
-        available: true,
-        specifications: ["2-person capacity", "4-season rated", "Aluminum poles", "Footprint included"]
-      },
-      {
-        id: "E004",
-        name: "Sleeping Bag (-10°C)",
-        category: "Sleep System",
-        brand: "Marmot",
-        price: 18,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=400&h=300",
-        description: "Down sleeping bag rated for -10°C with compression sack.",
-        available: true,
-        specifications: ["Down insulation", "-10°C rating", "Compression sack", "Water-resistant"]
-      },
-      {
-        id: "E005",
-        name: "Trekking Poles (Pair)",
-        category: "Accessories",
-        brand: "Black Diamond",
-        price: 12,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
-        description: "Lightweight carbon fiber trekking poles with shock absorption.",
-        available: true,
-        specifications: ["Carbon fiber", "Shock absorption", "Adjustable length", "Tungsten tips"]
-      },
-      {
-        id: "E006",
-        name: "Climbing Harness",
-        category: "Climbing",
-        brand: "Petzl",
-        price: 15,
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1522163723043-478ef79a5bb4?auto=format&fit=crop&w=400&h=300",
-        description: "Adjustable climbing harness with gear loops and belay loop.",
-        available: true,
-        specifications: ["Adjustable fit", "4 gear loops", "Belay loop", "Auto-locking buckles"]
-      }
-    ];
+        {
+          id: "E001",
+          name: "Professional Trekking Backpack",
+          category: "Backpacks",
+          brand: "The North Face",
+          price: 25,
+          rating: 4.8,
+          image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=400&h=300",
+          description: "65L capacity professional trekking backpack with weather protection.",
+          available: true,
+          specifications: ["65L capacity", "Weather resistant", "Multiple compartments", "Adjustable straps"]
+        },
+        {
+          id: "E002",
+          name: "4-Season Hiking Boots",
+          category: "Footwear",
+          brand: "Salomon",
+          price: 20,
+          rating: 4.6,
+          image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&h=300",
+          description: "Waterproof hiking boots suitable for all weather conditions.",
+          available: true,
+          specifications: ["Waterproof", "Ankle support", "Vibram sole", "Breathable membrane"]
+        },
+        {
+          id: "E003",
+          name: "Mountaineering Tent",
+          category: "Shelter",
+          brand: "MSR",
+          price: 35,
+          rating: 4.9,
+          image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&h=300",
+          description: "2-person 4-season mountaineering tent built for extreme conditions.",
+          available: true,
+          specifications: ["2-person capacity", "4-season rated", "Aluminum poles", "Footprint included"]
+        },
+        {
+          id: "E004",
+          name: "Sleeping Bag (-10°C)",
+          category: "Sleep System",
+          brand: "Marmot",
+          price: 18,
+          rating: 4.7,
+          image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=400&h=300",
+          description: "Down sleeping bag rated for -10°C with compression sack.",
+          available: true,
+          specifications: ["Down insulation", "-10°C rating", "Compression sack", "Water-resistant"]
+        },
+        {
+          id: "E005",
+          name: "Trekking Poles (Pair)",
+          category: "Accessories",
+          brand: "Black Diamond",
+          price: 12,
+          rating: 4.5,
+          image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
+          description: "Lightweight carbon fiber trekking poles with shock absorption.",
+          available: true,
+          specifications: ["Carbon fiber", "Shock absorption", "Adjustable length", "Tungsten tips"]
+        },
+        {
+          id: "E006",
+          name: "Climbing Harness",
+          category: "Climbing",
+          brand: "Petzl",
+          price: 15,
+          rating: 4.8,
+          image: "https://images.unsplash.com/photo-1522163723043-478ef79a5bb4?auto=format&fit=crop&w=400&h=300",
+          description: "Adjustable climbing harness with gear loops and belay loop.",
+          available: true,
+          specifications: ["Adjustable fit", "4 gear loops", "Belay loop", "Auto-locking buckles"]
+        }
+      ];
 
       const allEquipment = [...defaultEquipment, ...adminEquipment];
+      console.log("All equipment combined:", allEquipment);
+      
       setEquipment(allEquipment);
       setFilteredEquipment(allEquipment);
     };
 
     loadEquipment();
 
-    // Listen for storage changes to update equipment in real-time
+    const handleAdminEquipmentUpdate = (event: CustomEvent) => {
+      console.log("Received equipment update event:", event.detail);
+      loadEquipment();
+    };
+
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "adminEquipment") {
+        console.log("Storage changed for adminEquipment");
         loadEquipment();
       }
     };
 
+    window.addEventListener("adminEquipmentUpdated", handleAdminEquipmentUpdate as EventListener);
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    
+    return () => {
+      window.removeEventListener("adminEquipmentUpdated", handleAdminEquipmentUpdate as EventListener);
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const applyFilters = () => {
@@ -194,13 +210,11 @@ export const EquipmentRentalPage = () => {
   const submitRental = () => {
     const equipmentItem = equipment.find(e => e.id === rentalForm.equipmentId);
     
-    // Calculate rental duration and total price
     const startDate = new Date(rentalForm.startDate);
     const endDate = new Date(rentalForm.endDate);
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const totalPrice = equipmentItem ? equipmentItem.price * days * rentalForm.quantity : 0;
     
-    // Save rental to localStorage
     const existingBookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
     const newRental = {
       id: `R${Date.now()}`,
@@ -236,7 +250,6 @@ export const EquipmentRentalPage = () => {
     }
   };
 
-  // Get unique categories and brands for filter options
   const uniqueCategories = [...new Set(equipment.map(item => item.category))];
   const uniqueBrands = [...new Set(equipment.map(item => item.brand))];
 
@@ -255,7 +268,6 @@ export const EquipmentRentalPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Filters Section */}
         <Card>
           <CardHeader>
             <CardTitle>Filter Equipment</CardTitle>
@@ -333,7 +345,6 @@ export const EquipmentRentalPage = () => {
           </CardContent>
         </Card>
 
-        {/* Equipment Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEquipment.map((item) => (
             <Card key={item.id} className="overflow-hidden">
@@ -402,7 +413,6 @@ export const EquipmentRentalPage = () => {
         )}
       </div>
 
-      {/* Rental Dialog */}
       <Dialog open={isRentalOpen} onOpenChange={setIsRentalOpen}>
         <DialogContent>
           <DialogHeader>

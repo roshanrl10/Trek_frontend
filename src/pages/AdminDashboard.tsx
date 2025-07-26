@@ -205,13 +205,18 @@ const AdminDashboard = () => {
         rating: 4.5,
         image: equipmentForm.image || "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
         description: equipmentForm.description || "",
-        available: parseInt(equipmentForm.available) || 1,
+        available: true,
         specifications: equipmentForm.features ? equipmentForm.features.split(",").map((f) => f.trim()) : [],
         sizes: equipmentForm.size ? equipmentForm.size.split(",").map((s) => s.trim()) : [],
       };
 
       const updatedEquipment = [...existingEquipment, newEquipment];
       localStorage.setItem("adminEquipment", JSON.stringify(updatedEquipment));
+
+      // Trigger a custom event to notify other components about the update
+      window.dispatchEvent(new CustomEvent('adminEquipmentUpdated', { 
+        detail: updatedEquipment 
+      }));
 
       toast({
         title: "Equipment Added",
@@ -231,6 +236,7 @@ const AdminDashboard = () => {
         size: "",
       });
     } catch (error) {
+      console.error("Error adding equipment:", error);
       toast({
         title: "Error",
         description: "Failed to add equipment. Please try again.",
