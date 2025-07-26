@@ -170,6 +170,16 @@ const AdminDashboard = () => {
   };
 
   const handleAddEquipment = () => {
+    // Validate required fields
+    if (!equipmentForm.name || !equipmentForm.category || !equipmentForm.price || !equipmentForm.brand) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const existingEquipment = JSON.parse(
       localStorage.getItem("adminEquipment") || "[]"
     );
@@ -181,10 +191,11 @@ const AdminDashboard = () => {
       brand: equipmentForm.brand,
       price: parseInt(equipmentForm.price),
       rating: 4.5,
-      image: equipmentForm.image,
+      image: equipmentForm.image || "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
       description: equipmentForm.description,
-      available: true,
-      specifications: equipmentForm.features.split(",").map((f) => f.trim()),
+      available: parseInt(equipmentForm.available) || 1,
+      specifications: equipmentForm.features ? equipmentForm.features.split(",").map((f) => f.trim()) : [],
+      sizes: equipmentForm.size ? equipmentForm.size.split(",").map((s) => s.trim()) : [],
     };
 
     const updatedEquipment = [...existingEquipment, newEquipment];
