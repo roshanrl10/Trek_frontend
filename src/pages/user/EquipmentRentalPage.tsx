@@ -50,8 +50,9 @@ export const EquipmentRentalPage = () => {
 
   // Load equipment from localStorage (admin-added) and default equipment
   useEffect(() => {
-    const adminEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
-    const defaultEquipment = [
+    const loadEquipment = () => {
+      const adminEquipment = JSON.parse(localStorage.getItem("adminEquipment") || "[]");
+      const defaultEquipment = [
       {
         id: "E001",
         name: "Professional Trekking Backpack",
@@ -126,9 +127,22 @@ export const EquipmentRentalPage = () => {
       }
     ];
 
-    const allEquipment = [...defaultEquipment, ...adminEquipment];
-    setEquipment(allEquipment);
-    setFilteredEquipment(allEquipment);
+      const allEquipment = [...defaultEquipment, ...adminEquipment];
+      setEquipment(allEquipment);
+      setFilteredEquipment(allEquipment);
+    };
+
+    loadEquipment();
+
+    // Listen for storage changes to update equipment in real-time
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "adminEquipment") {
+        loadEquipment();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const applyFilters = () => {

@@ -178,16 +178,13 @@ const AdminDashboard = () => {
       id: `E${Date.now()}`,
       name: equipmentForm.name,
       category: equipmentForm.category,
-      price: parseInt(equipmentForm.price),
       brand: equipmentForm.brand,
+      price: parseInt(equipmentForm.price),
+      rating: 4.5,
       image: equipmentForm.image,
       description: equipmentForm.description,
-      features: equipmentForm.features.split(",").map((f) => f.trim()),
-      available: parseInt(equipmentForm.available),
-      size: equipmentForm.size
-        ? equipmentForm.size.split(",").map((s) => s.trim())
-        : undefined,
-      rating: 4.5,
+      available: true,
+      specifications: equipmentForm.features.split(",").map((f) => f.trim()),
     };
 
     const updatedEquipment = [...existingEquipment, newEquipment];
