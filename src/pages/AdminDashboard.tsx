@@ -174,50 +174,69 @@ const AdminDashboard = () => {
     if (!equipmentForm.name || !equipmentForm.category || !equipmentForm.price || !equipmentForm.brand) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields (Name, Category, Price, Brand).",
         variant: "destructive",
       });
       return;
     }
 
-    const existingEquipment = JSON.parse(
-      localStorage.getItem("adminEquipment") || "[]"
-    );
+    // Validate price is a valid number
+    const price = parseFloat(equipmentForm.price);
+    if (isNaN(price) || price <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid price.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const newEquipment = {
-      id: `E${Date.now()}`,
-      name: equipmentForm.name,
-      category: equipmentForm.category,
-      brand: equipmentForm.brand,
-      price: parseInt(equipmentForm.price),
-      rating: 4.5,
-      image: equipmentForm.image || "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
-      description: equipmentForm.description,
-      available: parseInt(equipmentForm.available) || 1,
-      specifications: equipmentForm.features ? equipmentForm.features.split(",").map((f) => f.trim()) : [],
-      sizes: equipmentForm.size ? equipmentForm.size.split(",").map((s) => s.trim()) : [],
-    };
+    try {
+      const existingEquipment = JSON.parse(
+        localStorage.getItem("adminEquipment") || "[]"
+      );
 
-    const updatedEquipment = [...existingEquipment, newEquipment];
-    localStorage.setItem("adminEquipment", JSON.stringify(updatedEquipment));
+      const newEquipment = {
+        id: `E${Date.now()}`,
+        name: equipmentForm.name,
+        category: equipmentForm.category,
+        brand: equipmentForm.brand,
+        price: price,
+        rating: 4.5,
+        image: equipmentForm.image || "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&h=300",
+        description: equipmentForm.description || "",
+        available: parseInt(equipmentForm.available) || 1,
+        specifications: equipmentForm.features ? equipmentForm.features.split(",").map((f) => f.trim()) : [],
+        sizes: equipmentForm.size ? equipmentForm.size.split(",").map((s) => s.trim()) : [],
+      };
 
-    toast({
-      title: "Equipment Added",
-      description: `${equipmentForm.name} has been added successfully.`,
-    });
+      const updatedEquipment = [...existingEquipment, newEquipment];
+      localStorage.setItem("adminEquipment", JSON.stringify(updatedEquipment));
 
-    setIsAddEquipmentOpen(false);
-    setEquipmentForm({
-      name: "",
-      category: "",
-      price: "",
-      brand: "",
-      image: "",
-      description: "",
-      features: "",
-      available: "",
-      size: "",
-    });
+      toast({
+        title: "Equipment Added",
+        description: `${equipmentForm.name} has been added successfully.`,
+      });
+
+      setIsAddEquipmentOpen(false);
+      setEquipmentForm({
+        name: "",
+        category: "",
+        price: "",
+        brand: "",
+        image: "",
+        description: "",
+        features: "",
+        available: "",
+        size: "",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add equipment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddAgency = () => {
